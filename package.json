@@ -1,0 +1,21 @@
+{
+  "name": "piano",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A free, open, offline-capable piano learning platform that runs entirely in the browser.",
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "serve": "python3 -m http.server 8080",
+    "test": "node --test \"tests/*.test.js\""
+  },
+  "keywords": [
+    "piano",
+    "music",
+    "education",
+    "web-audio",
+    "webmidi",
+    "ear-training"
+  ],
+  "license": "MIT"
+}
