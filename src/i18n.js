@@ -29,6 +29,18 @@ export const LOCALES = {
 export const DEFAULT_LOCALE = 'en';
 
 /**
+ * Bundles are loaded on demand — one language at a time — but the set of
+ * them is written out statically rather than built from a template string,
+ * so both a bundler and a reader can see exactly which locales exist.
+ */
+const BUNDLES = {
+  en: () => import('./locales/en/index.js'),
+  ru: () => import('./locales/ru/index.js'),
+  de: () => import('./locales/de/index.js'),
+  ar: () => import('./locales/ar/index.js'),
+};
+
+/**
  * How the twelve pitch classes are spelled in each naming system. Sharp and
  * flat variants are kept separately so a B flat looks like a B flat.
  */
@@ -101,9 +113,9 @@ class I18n {
   async load(locale) {
     const code = LOCALES[locale] ? locale : DEFAULT_LOCALE;
     if (!this.fallback) {
-      this.fallback = (await import('./locales/en/index.js')).default;
+      this.fallback = (await BUNDLES[DEFAULT_LOCALE]()).default;
     }
-    this.bundle = code === DEFAULT_LOCALE ? this.fallback : (await import(`./locales/${code}/index.js`)).default;
+    this.bundle = code === DEFAULT_LOCALE ? this.fallback : (await BUNDLES[code]()).default;
     this.locale = code;
     this._plurals.clear();
     this._applyDocument();

@@ -128,6 +128,22 @@ python3 -m http.server 8099 &
 node scripts/smoke.mjs
 ```
 
+## One file, if you need one
+
+The app is normally served as unbundled modules, which is how it is developed
+and how GitHub Pages serves it. For the cases where a single file is the
+deliverable — emailing a copy, a USB stick, a host that takes one page — there
+is a bundler that inlines the script, the stylesheet and every language into
+one HTML file with no network requests at all:
+
+```sh
+npm install --no-save esbuild
+npm run bundle                  # writes dist/open-piano.html
+```
+
+The result carries no `<html>`/`<head>`/`<body>` of its own, so it can either be
+opened as-is or dropped inside a host page's skeleton.
+
 ## How it is put together
 
 ```

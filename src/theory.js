@@ -54,7 +54,11 @@ export function midiToName(midi, opts = {}) {
  * @returns {number}
  */
 export function nameToMidi(name) {
-  const match = /^([A-Ga-g])([#b♯♭x]{0,2})(-?\d+)?$/.exec(String(name).trim());
+  // The sharp and flat signs are written as escapes rather than literals:
+  // a regex literal is one of the few places a bundler will not escape
+  // them for you, and this file has to survive being inlined into a page
+  // whose encoding it does not control.
+  const match = /^([A-Ga-g])([#b\u266F\u266Dx]{0,2})(-?\d+)?$/.exec(String(name).trim());
   if (!match) throw new Error(`Unrecognised note name: ${name}`);
   const [, letter, accidental, octave] = match;
   const base = LETTER_SEMITONES[letter.toUpperCase()];

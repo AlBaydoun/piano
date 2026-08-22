@@ -1,7 +1,8 @@
 /* ==========================================================================
    Open Piano
-   Dark by default, light when the system asks for it. One stylesheet, no
-   build step, custom properties for everything that varies.
+   Dark by default, light when the system or the host page asks for it.
+   One stylesheet, no build step, custom properties for everything that
+   varies.
    ========================================================================== */
 
 :root {
@@ -42,8 +43,15 @@
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
+/* The light palette. It applies when the system asks for light, and when a
+   host page stamps an explicit choice on the root element - some embedders
+   (and the app's own settings, should they ever drive it) do that instead of
+   relying on the system. An explicit choice wins over the system in both
+   directions. The declarations are written out twice because a media query
+   and a plain selector cannot share one rule. */
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
     --bg: #f6f7fa;
     --bg-raised: #ffffff;
     --bg-sunken: #eceff4;
@@ -61,6 +69,30 @@
     --accent-text: #1f4f9e;
     --shadow: 0 6px 24px rgb(20 30 50 / 12%);
   }
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f6f7fa;
+  --bg-raised: #ffffff;
+  --bg-sunken: #eceff4;
+  --panel: #ffffff;
+  --panel-hover: #f2f4f8;
+  --border: #dfe4ec;
+  --border-strong: #c6cddb;
+
+  --text: #161b23;
+  --text-muted: #5b667a;
+  --text-faint: #8b94a6;
+
+  --accent: #2f6fdc;
+  --accent-soft: #2f6fdc1f;
+  --accent-text: #1f4f9e;
+  --shadow: 0 6px 24px rgb(20 30 50 / 12%);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
