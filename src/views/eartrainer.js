@@ -1,30 +1,27 @@
 /** Ear training: intervals, chord qualities, scale degrees and melodies. */
 
 import { h, segmented, toast } from '../ui.js';
+import { i18n, t } from '../i18n.js';
 import { Scoreboard, drillPage, answerGrid, markAnswer } from './drillkit.js';
-import {
-  INTERVALS, CHORDS, buildChord, buildScale, midiToName, pick, randomInt, pitchClass,
-} from '../theory.js';
+import { buildChord, buildScale, pick, randomInt, pitchClass } from '../theory.js';
 
 const INTERVAL_SETS = {
-  simple: { label: 'Common intervals', semitones: [2, 4, 5, 7, 12] },
-  thirds: { label: 'Thirds and fifths', semitones: [3, 4, 7, 8, 9] },
-  all: { label: 'Every interval', semitones: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
+  simple: [2, 4, 5, 7, 12],
+  thirds: [3, 4, 7, 8, 9],
+  all: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
 };
 
 const CHORD_SETS = {
-  triads: { label: 'Major and minor', types: ['major', 'minor'] },
-  quality: { label: 'All four triads', types: ['major', 'minor', 'diminished', 'augmented'] },
-  sevenths: { label: 'Sevenths too', types: ['major', 'minor', 'dominant7', 'major7', 'minor7', 'diminished7'] },
+  triads: ['major', 'minor'],
+  quality: ['major', 'minor', 'diminished', 'augmented'],
+  sevenths: ['major', 'minor', 'dominant7', 'major7', 'minor7', 'diminished7'],
 };
-
-const DEGREE_NAMES = ['1 (tonic)', '2', '3', '4', '5', '6', '7 (leading tone)'];
 
 export function render(app) {
   const scoreboard = new Scoreboard(app, 'ear-intervals');
   const { page, stage, controls, status } = drillPage({
-    title: 'Ear training',
-    lede: 'Listen first, answer second. Replay as often as you like — recognising the sound matters more than being fast.',
+    title: t('earTrainer.title'),
+    lede: t('earTrainer.lede'),
     scoreboard,
   });
 
@@ -37,18 +34,18 @@ export function render(app) {
   let unsubscribe = null;
 
   const prompt = h('p.drill__question');
-  const answers = h('div');
-  const replay = h('button.btn.btn--primary', { type: 'button', onclick: () => play() }, 'Play it again');
+  const answers = h('div.drill__answers');
+  const replay = h('button.btn.btn--primary', { type: 'button', onclick: () => play() }, t('actions.playAgain'));
   stage.append(h('div.ear__player', null, replay), prompt, answers);
 
   const modeControl = segmented({
-    label: 'Mode',
+    label: t('earTrainer.mode'),
     value: mode,
     options: [
-      { value: 'intervals', label: 'Intervals' },
-      { value: 'chords', label: 'Chords' },
-      { value: 'degrees', label: 'Scale degrees' },
-      { value: 'melody', label: 'Melody playback' },
+      { value: 'intervals', label: t('earTrainer.modeIntervals') },
+      { value: 'chords', label: t('earTrainer.modeChords') },
+      { value: 'degrees', label: t('earTrainer.modeDegrees') },
+      { value: 'melody', label: t('earTrainer.modeMelody') },
     ],
     onChange: (value) => {
       mode = value;
@@ -63,33 +60,33 @@ export function render(app) {
     const extra = [];
     if (mode === 'intervals') {
       extra.push(segmented({
-        label: 'Set',
+        label: t('earTrainer.set'),
         value: intervalSet,
-        options: Object.entries(INTERVAL_SETS).map(([value, config]) => ({ value, label: config.label })),
+        options: Object.keys(INTERVAL_SETS).map((value) => ({ value, label: t(`earTrainer.sets.${value}`) })),
         onChange: (value) => { intervalSet = value; nextQuestion(); },
       }));
       extra.push(segmented({
-        label: 'Played',
+        label: t('earTrainer.played'),
         value: direction,
         options: [
-          { value: 'ascending', label: 'Ascending' },
-          { value: 'descending', label: 'Descending' },
-          { value: 'harmonic', label: 'Together' },
+          { value: 'ascending', label: t('earTrainer.ascending') },
+          { value: 'descending', label: t('earTrainer.descending') },
+          { value: 'harmonic', label: t('earTrainer.harmonic') },
         ],
         onChange: (value) => { direction = value; nextQuestion(); },
       }));
     } else if (mode === 'chords') {
       extra.push(segmented({
-        label: 'Set',
+        label: t('earTrainer.set'),
         value: chordSet,
-        options: Object.entries(CHORD_SETS).map(([value, config]) => ({ value, label: config.label })),
+        options: Object.keys(CHORD_SETS).map((value) => ({ value, label: t(`earTrainer.sets.${value}`) })),
         onChange: (value) => { chordSet = value; nextQuestion(); },
       }));
     } else if (mode === 'melody') {
       extra.push(segmented({
-        label: 'Length',
+        label: t('earTrainer.length'),
         value: String(melodyLength),
-        options: [3, 4, 5, 6].map((n) => ({ value: String(n), label: `${n} notes` })),
+        options: [3, 4, 5, 6].map((n) => ({ value: String(n), label: t('earTrainer.notesCount', { n }) })),
         onChange: (value) => { melodyLength = Number(value); nextQuestion(); },
       }));
     }
@@ -126,29 +123,31 @@ export function render(app) {
   // -- intervals -----------------------------------------------------------
 
   function setupInterval() {
-    const semitones = pick(INTERVAL_SETS[intervalSet].semitones);
+    const semitones = pick(INTERVAL_SETS[intervalSet]);
     const root = randomInt(52, 69);
     const notes = direction === 'descending' ? [root + semitones, root] : [root, root + semitones];
     current = { kind: direction === 'harmonic' ? 'harmonic' : 'melodic', notes, answer: semitones };
     prompt.textContent = direction === 'harmonic'
-      ? 'Which interval is sounding?'
-      : `Which interval, played ${direction}?`;
+      ? t('earTrainer.intervalQuestionHarmonic')
+      : t('earTrainer.intervalQuestion', { direction: t(`earTrainer.${direction}`).toLocaleLowerCase(i18n.locale) });
 
-    const choices = INTERVAL_SETS[intervalSet].semitones;
-    const options = choices.map((value) => ({ value: String(value), label: INTERVALS[value].name }));
-    showAnswers(options, String(semitones), () => `That was ${INTERVALS[semitones].name}.`);
+    const options = INTERVAL_SETS[intervalSet].map((value) => ({ value: String(value), label: i18n.intervalName(value) }));
+    showAnswers(options, String(semitones), () => t('earTrainer.intervalAnswer', { interval: i18n.intervalName(semitones) }));
   }
 
   // -- chord quality -------------------------------------------------------
 
   function setupChord() {
-    const types = CHORD_SETS[chordSet].types;
+    const types = CHORD_SETS[chordSet];
     const type = pick(types);
     const root = randomInt(48, 64);
     current = { kind: 'harmonic', notes: buildChord(root, type), answer: type };
-    prompt.textContent = 'What kind of chord is this?';
-    const options = types.map((value) => ({ value, label: CHORDS[value].name }));
-    showAnswers(options, type, () => `That was a ${CHORDS[type].name.toLowerCase()} chord on ${midiToName(root, { octave: false })}.`);
+    prompt.textContent = t('earTrainer.chordQuestion');
+    const options = types.map((value) => ({ value, label: i18n.chordTypeName(value) }));
+    showAnswers(options, type, () => t('earTrainer.chordAnswer', {
+      chord: i18n.chordTypeName(type),
+      note: app.noteName(root),
+    }));
   }
 
   // -- scale degrees -------------------------------------------------------
@@ -158,9 +157,13 @@ export function render(app) {
     const scale = buildScale(tonic, 'major', { includeOctave: false });
     const degree = randomInt(0, 6);
     current = { kind: 'melodic', notes: [tonic, tonic + 12, scale[degree]], answer: String(degree), noteDuration: 0.45 };
-    prompt.textContent = 'You hear the tonic twice, then one note of the scale. Which degree is it?';
-    const options = DEGREE_NAMES.map((label, value) => ({ value: String(value), label }));
-    showAnswers(options, String(degree), () => `That was degree ${degree + 1} — ${midiToName(scale[degree], { octave: false })} in C major.`);
+    prompt.textContent = t('earTrainer.degreeQuestion');
+    const options = Array.from({ length: 7 }, (_, value) => ({ value: String(value), label: t(`music.degrees.${value}`) }));
+    showAnswers(options, String(degree), () => t('earTrainer.degreeAnswer', {
+      degree: i18n.number(degree + 1),
+      note: app.noteName(scale[degree]),
+      key: i18n.keyName('C', 'major'),
+    }));
   }
 
   function showAnswers(options, correctValue, explain) {
@@ -168,9 +171,11 @@ export function render(app) {
       const correct = option.value === correctValue;
       scoreboard.record(correct);
       markAnswer(grid, correctValue, node);
-      status.textContent = correct ? `Correct. ${explain()}` : `Not quite. ${explain()}`;
+      status.textContent = correct
+        ? `${t('earTrainer.correctPrefix')} ${explain()}`
+        : `${t('earTrainer.wrongPrefix')} ${explain()}`;
       status.classList.toggle('is-correct', correct);
-      if (correct && scoreboard.streak % 10 === 0) toast(`${scoreboard.streak} in a row`, { tone: 'good' });
+      if (correct && scoreboard.streak % 10 === 0) toast(t('noteReader.streakToast', { n: scoreboard.streak }), { tone: 'good' });
       setTimeout(nextQuestion, correct ? 900 : 2000);
     }, { columns: options.length > 6 ? 4 : 3 });
     answers.replaceChildren(grid);
@@ -190,36 +195,36 @@ export function render(app) {
       notes.push(scale[index]);
     }
     current = { kind: 'melodic', notes, answer: notes, noteDuration: 0.45 };
-    prompt.textContent = `Play those ${melodyLength} notes back on the keyboard. They are all in C major.`;
+    prompt.textContent = t('earTrainer.melodyQuestion', { n: melodyLength, key: i18n.keyName('C', 'major') });
 
     let index = 0;
-    const trail = h('div.notetrail', null, notes.map((_, i) => h('span.notetrail__note', { dataset: { index: String(i) } }, '?')));
+    const trail = h('div.notetrail', null, notes.map((_, i) => h('span.notetrail__note', { dataset: { index: String(i) }, dir: 'ltr' }, '?')));
     answers.replaceChildren(trail, h('div.ear__actions', null,
       h('button.btn.btn--ghost.btn--small', {
         type: 'button',
         onclick: () => {
           scoreboard.record(false);
           revealMelody(trail, notes);
-          status.textContent = `The melody was ${notes.map((m) => midiToName(m, { octave: false })).join(' ')}.`;
+          status.textContent = t('earTrainer.melodyReveal', { notes: notes.map((m) => app.noteName(m)).join(' ') });
           setTimeout(nextQuestion, 2200);
         },
-      }, 'Give up and show me')));
+      }, t('actions.giveUp'))));
 
     unsubscribe = app.onNote((event) => {
       if (event.type !== 'on') return;
       if (pitchClass(event.midi) === pitchClass(notes[index]) && Math.abs(event.midi - notes[index]) % 12 === 0) {
-        trail.children[index].textContent = midiToName(notes[index], { octave: false });
+        trail.children[index].textContent = app.noteName(notes[index]);
         trail.children[index].classList.add('is-done');
         index += 1;
         if (index >= notes.length) {
           scoreboard.record(true);
-          status.textContent = 'That is the melody — correct.';
+          status.textContent = t('earTrainer.melodyCorrect');
           status.classList.add('is-correct');
           cleanupListener();
           setTimeout(nextQuestion, 900);
         }
       } else {
-        status.textContent = 'Not that one — listen again and try the next note.';
+        status.textContent = t('earTrainer.melodyWrong');
         app.keyboard.mark(event.midi, 'wrong');
         setTimeout(() => app.keyboard.unmark(event.midi, 'wrong'), 400);
       }
@@ -228,13 +233,13 @@ export function render(app) {
 
   function revealMelody(trail, notes) {
     notes.forEach((midi, i) => {
-      trail.children[i].textContent = midiToName(midi, { octave: false });
+      trail.children[i].textContent = app.noteName(midi);
       trail.children[i].classList.add('is-revealed');
     });
     app.engine.playSequence(notes, { noteDuration: 0.45 });
   }
 
-  app.setView(page, { title: 'Ear training' });
+  app.setView(page, { title: t('earTrainer.title') });
   renderOptions();
   nextQuestion();
 

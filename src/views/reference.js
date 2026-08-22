@@ -1,10 +1,11 @@
 /** Look up any scale, chord or key: see it, hear it, find it on the keys. */
 
 import { h, segmented, select, card } from '../ui.js';
+import { i18n, t } from '../i18n.js';
 import { Staff } from '../staff.js';
 import {
-  SCALES, CHORDS, SHARP_NAMES, buildScale, buildChord, chordName, diatonicTriads,
-  midiToName, keySignatureFor, KEY_SIGNATURES, scaleUpAndDown, accidentalLetters,
+  SCALES, CHORDS, SHARP_NAMES, buildScale, buildChord, diatonicTriads,
+  keySignatureFor, KEY_SIGNATURES, scaleUpAndDown, accidentalLetters, nameToMidi,
 } from '../theory.js';
 
 /** Conventional fingerings for the major scale, one octave, by tonic. */
@@ -23,7 +24,8 @@ const MAJOR_FINGERING = {
   'F#': { right: [2, 3, 4, 1, 2, 3, 1, 2], left: [4, 3, 2, 1, 3, 2, 1, 4] },
 };
 
-const ROOTS = SHARP_NAMES.map((name, index) => ({ value: String(60 + index), label: name }));
+const KEY_TONICS = { C: 60, G: 67, D: 62, A: 69, E: 64, B: 71, 'F#': 66, 'C#': 61, F: 65, Bb: 70, Eb: 63, Ab: 68, Db: 61, Gb: 66, Cb: 59 };
+const CIRCLE = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
 
 export function render(app) {
   let tab = 'scales';
@@ -33,18 +35,23 @@ export function render(app) {
   let inversion = 0;
   let keyName = 'C';
 
+  const rootOptions = () => SHARP_NAMES.map((_, index) => ({
+    value: String(60 + index),
+    label: app.noteName(60 + index, { short: true }),
+  }));
+
   const body = h('div.reference__body');
   const page = h('div.page', null,
     h('header.page__header', null,
-      h('h1.page__title', null, 'Reference'),
-      h('p.page__lede', null, 'Pick anything below and it lights up on the keyboard. Press play to hear it.')),
+      h('h1.page__title', null, t('reference.title')),
+      h('p.page__lede', null, t('reference.lede'))),
     segmented({
       label: '',
       value: tab,
       options: [
-        { value: 'scales', label: 'Scales' },
-        { value: 'chords', label: 'Chords' },
-        { value: 'keys', label: 'Keys' },
+        { value: 'scales', label: t('reference.tabScales') },
+        { value: 'chords', label: t('reference.tabChords') },
+        { value: 'keys', label: t('reference.tabKeys') },
       ],
       onChange: (value) => {
         tab = value;
@@ -64,46 +71,44 @@ export function render(app) {
 
   function staffFor(events, keySignature = 0, clef = 'treble') {
     const host = h('div.reference__staff');
-    new Staff(host, { clef, keySignature, spacing: 15, events, minWidth: 320 });
+    new Staff(host, { clef, keySignature, spacing: 16, events, minWidth: 320 });
     return host;
   }
 
   function drawScales() {
     const notes = buildScale(root, scaleType, { octaves: 1 });
     const scale = SCALES[scaleType];
-    const rootName = midiToName(root, { octave: false });
-    const fingering = scaleType === 'major' ? MAJOR_FINGERING[rootName] : null;
+    const englishRoot = SHARP_NAMES[root % 12];
+    const fingering = scaleType === 'major' ? MAJOR_FINGERING[englishRoot] : null;
     highlight(notes, { rootNote: root, fingers: fingering?.right });
 
     body.replaceChildren(
       h('div.reference__controls', null,
-        select({ label: 'Root', value: String(root), options: ROOTS, onChange: (value) => { root = Number(value); draw(); } }),
+        select({ label: t('reference.root'), value: String(root), options: rootOptions(), onChange: (value) => { root = Number(value); draw(); } }),
         select({
-          label: 'Scale',
+          label: t('reference.scale'),
           value: scaleType,
-          options: Object.entries(SCALES).map(([value, config]) => ({ value, label: config.name })),
+          options: Object.keys(SCALES).map((value) => ({ value, label: i18n.scaleName(value) })),
           onChange: (value) => { scaleType = value; draw(); },
         }),
         h('button.btn.btn--primary.btn--small', {
           type: 'button',
           onclick: () => app.engine.playSequence(scaleUpAndDown(root, scaleType, 1), { noteDuration: 0.34, gap: 0.02 }),
-        }, 'Play up and down')),
+        }, t('actions.playUpDown'))),
 
-      card(`${rootName} ${scale.name}`,
+      card(`${app.noteName(root, { short: true })} · ${i18n.scaleName(scaleType)}`,
         staffFor(notes.map((midi) => ({ midis: [midi], duration: 'quarter' })), 0),
-        h('table.table', null,
-          h('thead', null, h('tr', null, h('th', null, 'Degree'), notes.slice(0, -1).map((_, i) => h('th', null, scale.degrees[i])))),
+        h('div.table-scroll', null, h('table.table', null,
+          h('thead', null, h('tr', null, h('th', null, t('reference.degree')), notes.slice(0, -1).map((_, i) => h('th', { dir: 'ltr' }, scale.degrees[i])))),
           h('tbody', null,
-            h('tr', null, h('th', null, 'Note'), notes.slice(0, -1).map((midi) => h('td', null, midiToName(midi, { octave: false })))),
-            h('tr', null, h('th', null, 'Step'), notes.slice(0, -1).map((midi, i) => {
+            h('tr', null, h('th', null, t('reference.note')), notes.slice(0, -1).map((midi) => h('td', null, app.noteName(midi, { short: true })))),
+            h('tr', null, h('th', null, t('reference.step')), notes.slice(0, -1).map((midi, i) => {
               const gap = notes[i + 1] - midi;
-              return h('td', null, gap === 1 ? 'half' : gap === 2 ? 'whole' : `${gap} semitones`);
-            })))),
+              return h('td', null, gap === 1 ? t('reference.halfStep') : gap === 2 ? t('reference.wholeStep') : t('reference.semitones', { n: gap }));
+            }))))),
         fingering
-          ? h('p.prose', null,
-            `Standard fingering — right hand ${fingering.right.join(' ')}, left hand ${fingering.left.join(' ')}. `,
-            'Numbers appear on the keys below.')
-          : h('p.prose', null, 'Fingering for this scale depends on context; start from the major-scale pattern and adjust so the thumb never lands on a black key.')),
+          ? h('p.prose', null, t('reference.fingering', { right: fingering.right.join(' '), left: fingering.left.join(' ') }))
+          : h('p.prose', null, t('reference.noFingering'))),
     );
   }
 
@@ -111,60 +116,69 @@ export function render(app) {
     const notes = buildChord(root, chordType, { inversion });
     highlight(notes, { rootNote: notes.find((midi) => midi % 12 === root % 12) ?? root });
     const chord = CHORDS[chordType];
-    const intervalsFromRoot = chord.steps.map((step) => step);
 
     body.replaceChildren(
       h('div.reference__controls', null,
-        select({ label: 'Root', value: String(root), options: ROOTS, onChange: (value) => { root = Number(value); draw(); } }),
+        select({ label: t('reference.root'), value: String(root), options: rootOptions(), onChange: (value) => { root = Number(value); draw(); } }),
         select({
-          label: 'Chord',
+          label: t('reference.chord'),
           value: chordType,
-          options: Object.entries(CHORDS).map(([value, config]) => ({ value, label: config.name })),
+          options: Object.keys(CHORDS).map((value) => ({ value, label: i18n.chordTypeName(value) })),
           onChange: (value) => { chordType = value; inversion = 0; draw(); },
         }),
         select({
-          label: 'Inversion',
+          label: t('reference.inversion'),
           value: String(inversion),
-          options: chord.steps.map((_, i) => ({ value: String(i), label: i === 0 ? 'Root position' : `${['', '1st', '2nd', '3rd', '4th'][i]} inversion` })),
+          options: chord.steps.map((_, i) => ({ value: String(i), label: t(`music.inversions.${i}`) })),
           onChange: (value) => { inversion = Number(value); draw(); },
         }),
-        h('button.btn.btn--primary.btn--small', { type: 'button', onclick: () => app.engine.playChord(notes, 1.8) }, 'Play chord'),
-        h('button.btn.btn--ghost.btn--small', { type: 'button', onclick: () => app.engine.playSequence(notes, { noteDuration: 0.4 }) }, 'Arpeggiate')),
+        h('button.btn.btn--primary.btn--small', { type: 'button', onclick: () => app.engine.playChord(notes, 1.8) }, t('actions.playChord')),
+        h('button.btn.btn--ghost.btn--small', { type: 'button', onclick: () => app.engine.playSequence(notes, { noteDuration: 0.4 }) }, t('actions.arpeggiate'))),
 
-      card(chordName(root, chordType),
+      card(i18n.chordSymbol(root, chordType),
         staffFor([{ midis: notes, duration: 'whole' }], 0, notes.some((m) => m < 57) ? 'grand' : 'treble'),
-        h('p.prose', null,
-          `${chord.name}. Notes: ${notes.map((midi) => midiToName(midi)).join(' – ')}.`),
-        h('p.prose', null,
-          `Built from the root by stacking intervals of ${intervalsFromRoot.slice(1).map((s) => `${s} semitones`).join(', ')}.`)),
+        h('p.prose', null, t('reference.chordNotes', {
+          name: i18n.chordTypeName(chordType),
+          notes: notes.map((midi) => app.noteName(midi, { octave: true })).join(' – '),
+        })),
+        h('p.prose', null, t('reference.chordBuilt', {
+          intervals: chord.steps.slice(1).map((s) => t('reference.semitones', { n: s })).join(', '),
+        }))),
     );
   }
 
   function drawKeys() {
     const signature = keySignatureFor(keyName);
-    const tonic = 60 + (SHARP_NAMES.indexOf(keyName.replace('b', '#')) >= 0 ? 0 : 0);
-    const tonicMidi = keyTonicMidi(keyName);
+    const tonicMidi = KEY_TONICS[keyName] ?? 60;
     const triads = diatonicTriads(tonicMidi, 'major');
     const letters = accidentalLetters(signature);
+    const symbol = signature >= 0 ? '♯' : '♭';
     highlight(buildScale(tonicMidi, 'major'), { rootNote: tonicMidi });
 
     body.replaceChildren(
       h('div.reference__controls', null,
         select({
-          label: 'Key',
+          label: t('reference.key'),
           value: keyName,
-          options: Object.keys(KEY_SIGNATURES).map((value) => ({ value, label: `${value} major` })),
+          options: Object.keys(KEY_SIGNATURES).map((value) => ({ value, label: i18n.keyName(value, 'major') })),
           onChange: (value) => { keyName = value; draw(); },
         })),
 
-      card(`${keyName} major`,
+      card(i18n.keyName(keyName, 'major'),
         staffFor([], signature),
         h('p.prose', null, signature === 0
-          ? 'No sharps or flats.'
-          : `${letters.length} ${signature > 0 ? 'sharp' : 'flat'}${letters.length === 1 ? '' : 's'}: ${letters.map((l) => l + (signature > 0 ? '♯' : '♭')).join(', ')}.`),
-        h('p.prose', null, `Relative minor: ${midiToName(tonicMidi + 9, { octave: false, flats: signature < 0 })} minor — same key signature, different tonic.`)),
+          ? t('reference.signatureNone')
+          : t('reference.signatureList', {
+            count: signature > 0
+              ? t('keyTrainer.sharps', { count: letters.length, n: letters.length })
+              : t('keyTrainer.flats', { count: letters.length, n: letters.length }),
+            letters: letters.map((l) => app.noteName(nameToMidi(l), { short: true }) + symbol).join(', '),
+          })),
+        h('p.prose', null, t('reference.relativeMinor', {
+          key: i18n.keyName(SHARP_NAMES[(tonicMidi + 9) % 12], 'minor'),
+        }))),
 
-      card('Chords in this key',
+      card(t('reference.chordsInKey'),
         h('div.chordgrid', null, triads.map((triad) => h('button.chordgrid__item', {
           type: 'button',
           onclick: () => {
@@ -172,13 +186,11 @@ export function render(app) {
             highlight(triad.notes, { rootNote: triad.root });
           },
         },
-          h('span.chordgrid__numeral', null, triad.numeral),
-          h('span.chordgrid__name', null, triad.name)))),
-        h('p.prose', null,
-          'Uppercase numerals are major chords, lowercase are minor, and the ° is diminished. ',
-          'I, IV and V are the three that do most of the work.')),
+          h('span.chordgrid__numeral', { dir: 'ltr' }, triad.numeral),
+          h('span.chordgrid__name', { dir: 'ltr' }, i18n.chordSymbol(triad.root, triad.type))))),
+        h('p.prose', null, t('reference.chordsInKeyNote'))),
 
-      card('Circle of fifths', circleOfFifths(keyName, (name) => { keyName = name; draw(); })),
+      card(t('reference.circleOfFifths'), circleOfFifths(app, keyName, (name) => { keyName = name; draw(); })),
     );
   }
 
@@ -188,7 +200,7 @@ export function render(app) {
     else drawKeys();
   }
 
-  app.setView(page, { title: 'Reference' });
+  app.setView(page, { title: t('reference.title') });
   draw();
 
   return () => {
@@ -197,14 +209,7 @@ export function render(app) {
   };
 }
 
-const KEY_TONICS = { C: 60, G: 67, D: 62, A: 69, E: 64, B: 71, 'F#': 66, 'C#': 61, F: 65, Bb: 70, Eb: 63, Ab: 68, Db: 61, Gb: 66, Cb: 59 };
-function keyTonicMidi(name) {
-  return KEY_TONICS[name] ?? 60;
-}
-
-const CIRCLE = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
-
-function circleOfFifths(active, onPick) {
+function circleOfFifths(app, active, onPick) {
   const size = 300;
   const centre = size / 2;
   const wrap = h('div.circle');
@@ -212,7 +217,7 @@ function circleOfFifths(active, onPick) {
   svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
   svg.setAttribute('class', 'circle__svg');
   svg.setAttribute('role', 'group');
-  svg.setAttribute('aria-label', 'Circle of fifths');
+  svg.setAttribute('aria-label', t('reference.circleOfFifths'));
 
   CIRCLE.forEach((name, index) => {
     const angle = (index / CIRCLE.length) * Math.PI * 2 - Math.PI / 2;
@@ -222,7 +227,7 @@ function circleOfFifths(active, onPick) {
     group.setAttribute('class', `circle__key ${name === active ? 'is-active' : ''}`);
     group.setAttribute('tabindex', '0');
     group.setAttribute('role', 'button');
-    group.setAttribute('aria-label', `${name} major`);
+    group.setAttribute('aria-label', i18n.keyName(name, 'major'));
     group.addEventListener('click', () => onPick(name));
     group.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
@@ -240,7 +245,7 @@ function circleOfFifths(active, onPick) {
     label.setAttribute('y', y);
     label.setAttribute('text-anchor', 'middle');
     label.setAttribute('dominant-baseline', 'central');
-    label.textContent = name;
+    label.textContent = app.noteName(nameToMidi(name), { short: true, flats: name.includes('b') });
     const count = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     count.setAttribute('x', x);
     count.setAttribute('y', y + 15);
@@ -253,8 +258,6 @@ function circleOfFifths(active, onPick) {
     svg.append(group);
   });
 
-  wrap.append(svg, h('p.prose.circle__note', null,
-    'Each step clockwise adds a sharp; each step anticlockwise adds a flat. Neighbouring keys share all but one note, ',
-    'which is why music moves between them so easily.'));
+  wrap.append(svg, h('p.prose.circle__note', null, t('reference.circleNote')));
   return wrap;
 }

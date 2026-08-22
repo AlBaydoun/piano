@@ -1,23 +1,40 @@
 # Open Piano
 
-A free piano learning platform that runs entirely in the browser. No account, no
-server, no cost, and no build step — clone it, open `index.html` through any
-static server, and it works.
+A free piano learning platform that runs entirely in the browser, in **English,
+Russian, German and Arabic**. No account, no server, no cost, and no build step
+— clone it, open `index.html` through any static server, and it works.
 
 <!-- Try it: enable GitHub Pages for this repository and the workflow in
      .github/workflows/pages.yml publishes it automatically. -->
 
 ## What's in it
 
-**A course, from scratch.** Twenty-four lessons across eight units: finding your
-way around the keys, your first melodies, reading the treble and bass staves,
-rhythm and counting, scales and key signatures, chords and inversions, playing
-hands together, and dynamics and pedalling. Every concept has something you
-actually play, and the lesson only moves on once you have played it.
+**A course that starts at zero and does not stop at the basics.** Fifty-six
+lessons across twelve units:
 
-**A song library with falling notes.** Eighteen public-domain pieces from
-*Twinkle, Twinkle* to the opening of Bach's Prelude in C. Notes fall towards the
-keyboard and land on the key you need. Three modes:
+| | |
+| --- | --- |
+| 1. Before you play | What the instrument is, posture, hand shape, finding your way around the keys |
+| 2. First contact | Finger numbers, the five-finger position, your first two melodies |
+| 3. Rhythm and counting | Pulse, note values, rests, time signatures, dots and ties |
+| 4. Reading the treble staff | The staff, landmark notes, ledger lines, reading by interval |
+| 5. Bass and grand staff | The F clef, its landmarks, and reading two staves at once |
+| 6. Sharps and flats | Half steps, accidentals, enharmonic spelling |
+| 7. Scales and keys | The major formula, fingering and the thumb-under, key signatures, the circle of fifths, minor |
+| 8. Chords and harmony | Intervals, triads, diminished and augmented, inversions, I–IV–V, sevenths |
+| 9. Hands together | Blocked chords, Alberti bass, hand independence, how to learn a piece |
+| 10. Technique | Evenness, two-octave scales, arpeggios, octaves, how to practise |
+| 11. Playing musically | Dynamics, articulation, the pedal, phrasing, balance |
+| 12. Beyond the page | Chord symbols, accompaniment patterns, the twelve-bar blues, improvising, playing by ear |
+
+Every concept has something you actually play. Steps are prose, notes to play,
+notation to read, examples to listen to, timed metronome exercises, or quizzes —
+and a lesson only advances once you have played or answered it.
+
+**Twenty-seven pieces and studies with falling notes.** Public-domain repertoire
+from *Twinkle, Twinkle* to the opening of Bach's Prelude in C, plus technical
+studies for five-finger work, scales, arpeggios, Hanon, a I–V–vi–IV progression
+and a twelve-bar blues. Three modes:
 
 - **Wait for me** — the music pauses at each note until you find it, so you can
   learn a piece at whatever speed you actually play it
@@ -44,6 +61,33 @@ heard.
 
 **Free play** with live chord detection, a scale highlighter for improvising,
 and a recorder.
+
+## Languages
+
+Pick a language from the header; the choice is remembered. Everything is
+translated — interface, all fifty-six lessons, every song description.
+
+| | | |
+| --- | --- | --- |
+| English | `en` | left to right |
+| Русский | `ru` | left to right |
+| Deutsch | `de` | left to right |
+| العربية | `ar` | **right to left** |
+
+Two things a music app has to get right beyond simple string swapping:
+
+**Note names differ by country.** English speakers say B, Germans say H (and
+write B for what English calls B♭), and much of the world uses Do–Re–Mi — in
+Cyrillic for Russian, in Arabic script for Arabic. Course text therefore never
+hard-codes a note name. It writes `{note:C}` and the renderer spells it in
+whatever system the reader is using. Each language has a sensible default and
+you can override it in Settings, so a German speaker can read in Do–Re–Mi or an
+English speaker in German naming if they prefer.
+
+**Arabic reads right to left, but a keyboard does not.** The page mirrors: the
+navigation, the cards, the controls, the reading order. The instrument does not
+— low notes stay on the left, notation still reads left to right, and the
+falling notes still land on the right keys.
 
 ## Playing it
 
@@ -72,11 +116,11 @@ Opening `index.html` directly from the filesystem will *not* work — the app is
 built from ES modules, which browsers refuse to load over `file://`.
 
 ```sh
-npm test           # the unit tests: theory, song data, course data, router, storage
+npm test           # theory, song data, course data, translations, router, storage
 ```
 
-The browser smoke test loads every route at two viewport sizes and fails on any
-console error or horizontal overflow:
+The browser smoke test loads every route in every language at two viewport
+sizes and fails on any console error, untranslated key, or horizontal overflow:
 
 ```sh
 npm install --no-save playwright && npx playwright install chromium
@@ -88,10 +132,11 @@ node scripts/smoke.mjs
 
 ```
 index.html            the shell
-styles/main.css       one stylesheet, dark and light
+styles/main.css       one stylesheet, dark and light, LTR and RTL
 src/
   main.js             entry point
-  app.js              application shell: nav, transport, the docked keyboard, routing
+  app.js              application shell: nav, transport, the docked keyboard, language, routing
+  i18n.js             locale loading, plurals, note-name systems, direction
   router.js           hash routing
   theory.js           notes, scales, chords, intervals, keys, staff placement
   audio.js            the synthesised piano and the metronome
@@ -101,12 +146,19 @@ src/
   storage.js          progress and settings in localStorage
   ui.js               small DOM helpers
   views/              one module per screen
-  data/               the course and the song library
+  data/               the course and the song library — structure only, no prose
+  locales/<lang>/     ui.js, lessons.js, songs.js — every word the reader sees
 tests/                node --test suites
 scripts/smoke.mjs     browser smoke test
 ```
 
 A few decisions worth knowing about:
+
+**Course structure and course text live apart.** `data/lessons.js` holds what a
+lesson *does* — the notes to play, the fingering, which quiz option is correct.
+`locales/<lang>/lessons.js` holds what it *says*, keyed by lesson id and step
+index. A translation therefore cannot drift out of step with the exercise it
+describes, and a test asserts that every language has text for every step.
 
 **The piano is synthesised, not sampled.** Each note is a stack of six detuned
 harmonics whose upper partials decay faster than the fundamental — which is what
@@ -126,7 +178,9 @@ to fail to load.
 **The keyboard is one instance, shared by every screen.** It lives in the dock at
 the bottom of the window and views borrow it to highlight notes, show fingering,
 or catch what you play. That is also what lets the falling-note canvas line up
-with the keys: it measures the keyboard's bounding box and matches it.
+with the keys: it measures the keyboard's bounding box and matches it with a
+transform, which is measured in physical pixels and so survives a right-to-left
+page.
 
 **Progress never leaves your device.** It is written to `localStorage` and
 nothing is uploaded. There is an export button on the Progress page if you want
@@ -146,14 +200,16 @@ compact text notation so it stays readable and reviewable in a diff:
 
 `parseVoice()` turns that into timed note events; `compile()` merges the voices
 of a song and sorts them. Adding a song means adding one object to
-`src/data/songs.js` — the tests will check that its bars add up and that every
-note is on the keyboard.
+`src/data/songs.js` and a title, composer and description to each locale — the
+tests will check that its bars add up, that every note is on the keyboard, and
+that no language is missing its text.
 
 ## Accessibility
 
 Keyboard-navigable throughout, with a skip link, focus rings, live regions for
-drill feedback, and `aria-label`s on the piano keys and notation. The colour
-palette holds up in both themes, and `prefers-reduced-motion` is respected.
+drill feedback, and `aria-label`s on the piano keys and notation — all
+translated. The colour palette holds up in both themes, and
+`prefers-reduced-motion` is respected.
 
 ## Licence
 

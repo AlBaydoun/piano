@@ -1,28 +1,26 @@
 /** Chord building drill: you get a symbol, you play the chord. */
 
 import { h, segmented, toast } from '../ui.js';
+import { i18n, t } from '../i18n.js';
 import { Scoreboard, drillPage } from './drillkit.js';
-import { CHORDS, buildChord, chordName, midiToName, pitchClass, pick, randomInt } from '../theory.js';
+import { CHORDS, buildChord, pitchClass, pick, randomInt } from '../theory.js';
 
 const LEVELS = {
-  triads: { label: 'Major and minor', types: ['major', 'minor'], inversions: false },
-  allTriads: { label: 'All triads', types: ['major', 'minor', 'diminished', 'augmented', 'sus4'], inversions: false },
-  sevenths: { label: 'Sevenths', types: ['dominant7', 'major7', 'minor7', 'halfDiminished7', 'diminished7'], inversions: false },
-  inversions: { label: 'Triads with inversions', types: ['major', 'minor'], inversions: true },
+  triads: { types: ['major', 'minor'], inversions: false },
+  allTriads: { types: ['major', 'minor', 'diminished', 'augmented', 'sus4'], inversions: false },
+  sevenths: { types: ['dominant7', 'major7', 'minor7', 'halfDiminished7', 'diminished7'], inversions: false },
+  inversions: { types: ['major', 'minor'], inversions: true },
   everything: {
-    label: 'Everything',
     types: ['major', 'minor', 'diminished', 'augmented', 'sus2', 'sus4', 'dominant7', 'major7', 'minor7', 'major6'],
     inversions: true,
   },
 };
 
-const INVERSION_NAMES = ['root position', 'first inversion', 'second inversion', 'third inversion'];
-
 export function render(app) {
   const scoreboard = new Scoreboard(app, 'chord-recognition');
   const { page, stage, controls, status } = drillPage({
-    title: 'Chord building',
-    lede: 'Play the chord you are shown, in any octave. Notes can be played together or one at a time.',
+    title: t('chordTrainer.title'),
+    lede: t('chordTrainer.lede'),
     scoreboard,
   });
 
@@ -30,16 +28,16 @@ export function render(app) {
   let current = null;
   let locked = false;
 
-  const symbol = h('div.chord-prompt__symbol');
+  const symbol = h('div.chord-prompt__symbol', { dir: 'ltr' });
   const detail = h('div.chord-prompt__detail');
-  const held = h('div.chord-prompt__held');
+  const held = h('div.chord-prompt__held', { dir: 'ltr' });
   stage.append(h('div.chord-prompt', null, symbol, detail, held));
 
   controls.append(
     segmented({
-      label: 'Level',
+      label: t('chordTrainer.level'),
       value: level,
-      options: Object.entries(LEVELS).map(([value, config]) => ({ value, label: config.label })),
+      options: Object.keys(LEVELS).map((value) => ({ value, label: t(`chordTrainer.levels.${value}`) })),
       onChange: (value) => {
         level = value;
         nextQuestion();
@@ -48,11 +46,11 @@ export function render(app) {
     h('button.btn.btn--ghost.btn--small', {
       type: 'button',
       onclick: () => current && app.engine.playChord(current.notes, 1.6),
-    }, 'Hear it'),
+    }, t('actions.hear')),
     h('button.btn.btn--ghost.btn--small', {
       type: 'button',
       onclick: () => reveal(),
-    }, 'Show me'),
+    }, t('actions.showMe')),
   );
 
   function nextQuestion() {
@@ -64,10 +62,10 @@ export function render(app) {
     const notes = buildChord(root, type, { inversion });
     current = { root, type, inversion, notes };
 
-    symbol.textContent = chordName(root, type);
+    symbol.textContent = i18n.chordSymbol(root, type);
     detail.textContent = inversion
-      ? `${CHORDS[type].name} · ${INVERSION_NAMES[inversion]} — ${midiToName(notes[0], { octave: false })} in the bass`
-      : CHORDS[type].name;
+      ? `${i18n.chordTypeName(type)} · ${t(`music.inversions.${inversion}`)} — ${t('music.bassNote', { note: app.noteName(notes[0]) })}`
+      : i18n.chordTypeName(type);
     held.textContent = '';
     status.textContent = '';
     status.className = 'drill__status';
@@ -81,7 +79,10 @@ export function render(app) {
     scoreboard.record(false);
     app.keyboard.mark(current.notes, 'hint');
     app.engine.playChord(current.notes, 1.6);
-    status.textContent = `${chordName(current.root, current.type)} is ${current.notes.map((m) => midiToName(m, { octave: false })).join(' – ')}.`;
+    status.textContent = t('chordTrainer.reveal', {
+      symbol: i18n.chordSymbol(current.root, current.type),
+      notes: current.notes.map((m) => app.noteName(m)).join(' – '),
+    });
     setTimeout(nextQuestion, 2200);
   }
 
@@ -106,27 +107,25 @@ export function render(app) {
     if (locked || !current) return;
     if (event.type === 'on') {
       const heldNotes = [...app.sounding].sort((a, b) => a - b);
-      held.textContent = heldNotes.map((m) => midiToName(m)).join('  ');
+      held.textContent = heldNotes.map((m) => app.noteName(m, { octave: true })).join('  ');
       const verdict = check();
       if (verdict === true) {
         locked = true;
         scoreboard.record(true);
         app.keyboard.mark(heldNotes, 'correct');
-        status.textContent = 'Correct.';
+        status.textContent = t('chordTrainer.correct');
         status.classList.add('is-correct');
-        if (scoreboard.streak % 10 === 0) toast(`${scoreboard.streak} in a row`, { tone: 'good' });
+        if (scoreboard.streak % 10 === 0) toast(t('noteReader.streakToast', { n: scoreboard.streak }), { tone: 'good' });
         setTimeout(nextQuestion, 800);
       } else if (verdict === false) {
-        status.textContent = LEVELS[level].inversions
-          ? 'Right notes are not all there, or the bass note is wrong.'
-          : 'That is not quite it — release and try again.';
+        status.textContent = LEVELS[level].inversions ? t('chordTrainer.wrongBass') : t('chordTrainer.wrong');
       }
     } else if (event.type === 'off' && app.sounding.size === 0) {
       held.textContent = '';
     }
   });
 
-  app.setView(page, { title: 'Chord building' });
+  app.setView(page, { title: t('chordTrainer.title') });
   nextQuestion();
 
   return () => {

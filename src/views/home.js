@@ -1,43 +1,15 @@
-/**
- * Landing screen: what this is, where to start, and how you are doing.
- */
+/** Landing screen: what this is, where to start, and how you are doing. */
 
-import { h, card, stat, formatDuration, percent } from '../ui.js';
+import { h, card, stat, templateNodes } from '../ui.js';
+import { t } from '../i18n.js';
 import { LESSONS, UNITS, lessonsInUnit } from '../data/lessons.js';
 import { SONGS } from '../data/songs.js';
 
-const FEATURES = [
-  {
-    path: '/lessons',
-    title: 'Lessons',
-    blurb: 'A course that starts at "which key is C" and ends at pedalling. Every concept has something to play.',
-    meta: () => `${LESSONS.length} lessons in ${UNITS.length} units`,
-  },
-  {
-    path: '/songs',
-    title: 'Songs',
-    blurb: 'Falling notes that wait for you to find the right key, or play along at your own tempo.',
-    meta: () => `${SONGS.length} pieces, public domain`,
-  },
-  {
-    path: '/practice',
-    title: 'Practice drills',
-    blurb: 'Sight reading, ear training, chord recognition and key signatures — short, repeatable, scored.',
-    meta: () => 'Four drills',
-  },
-  {
-    path: '/reference',
-    title: 'Reference',
-    blurb: 'Look up any scale or chord, see it on the keyboard and the staff, and hear it.',
-    meta: () => 'Scales, chords, keys',
-  },
-  {
-    path: '/freeplay',
-    title: 'Free play',
-    blurb: 'Just the piano, with live chord detection and a scale highlighter if you want one.',
-    meta: () => 'No goals, no scoring',
-  },
-];
+const FEATURES = ['lessons', 'songs', 'practice', 'reference', 'freeplay'];
+const FEATURE_PATHS = {
+  lessons: '/lessons', songs: '/songs', practice: '/practice',
+  reference: '/reference', freeplay: '/freeplay',
+};
 
 export function render(app) {
   const { progress } = app;
@@ -45,57 +17,59 @@ export function render(app) {
   const done = progress.completedLessonCount;
   const started = done > 0 || progress.data.practiceSeconds > 0;
 
+  const featureMeta = {
+    lessons: t('home.features.lessons.meta', { lessons: LESSONS.length, units: UNITS.length }),
+    songs: t('home.features.songs.meta', { count: SONGS.length }),
+    practice: t('home.features.practice.meta'),
+    reference: t('home.features.reference.meta'),
+    freeplay: t('home.features.freeplay.meta'),
+  };
+
   const page = h('div.page.page--home', null,
     h('section.hero', null,
-      h('p.hero__eyebrow', null, 'Free, open source, no account, works offline'),
-      h('h1.hero__title', null, 'Learn the piano in your browser'),
-      h('p.hero__lede', null,
-        'A complete beginner course, a song library that waits for your fingers, and drills for reading, ',
-        'rhythm and ear training. Use your mouse, your computer keyboard, or plug in a MIDI piano.'),
+      h('p.hero__eyebrow', null, t('home.eyebrow')),
+      h('h1.hero__title', null, t('home.title')),
+      h('p.hero__lede', null, t('home.lede')),
       h('div.hero__actions', null,
         h('a.btn.btn--primary.btn--large', { href: `#/lesson/${nextLesson.id}` },
-          started ? 'Continue where you left off' : 'Start the first lesson'),
-        h('a.btn.btn--ghost.btn--large', { href: '#/freeplay' }, 'Just let me play')),
-      h('p.hero__hint', null,
-        'Tip: the letter keys on your computer keyboard are mapped to the piano — press ',
-        h('kbd', null, 'A'), ' through ', h('kbd', null, 'L'), ', or hold ', h('kbd', null, 'Space'),
-        ' for the sustain pedal.')),
+          started ? t('home.continueCourse') : t('home.startCourse')),
+        h('a.btn.btn--ghost.btn--large', { href: '#/freeplay' }, t('home.justPlay'))),
+      h('p.hero__hint', null, templateNodes('home.hint', {
+        keys: h('span.keys', { dir: 'ltr' }, h('kbd', null, 'A'), '–', h('kbd', null, 'L')),
+        space: h('kbd', null, 'Space'),
+      }))),
 
-    started ? card('Your progress',
+    started ? card(t('home.progressTitle'),
       h('div.stats', null,
-        stat(`${done}/${LESSONS.length}`, 'Lessons complete'),
-        stat(progress.streak, progress.streak === 1 ? 'Day streak' : 'Day streak'),
-        stat(formatDuration(progress.data.practiceSeconds), 'Time at the keys'),
-        stat(percent(progress.overallAccuracy), 'Drill accuracy')),
-      h('a.card__link', { href: '#/progress' }, 'See the details →')) : null,
+        stat(`${app.i18n.number(done)}/${app.i18n.number(LESSONS.length)}`, t('stats.lessonsComplete')),
+        stat(app.i18n.number(progress.streak), t('stats.dayStreak')),
+        stat(app.duration(progress.data.practiceSeconds), t('stats.practiceTime')),
+        stat(app.percent(progress.overallAccuracy), t('stats.drillAccuracy'))),
+      h('a.card__link', { href: '#/progress' }, t('home.detailsLink'))) : null,
 
     h('section.grid.grid--features', null,
-      FEATURES.map((feature) => h('a.feature', { href: `#${feature.path}` },
-        h('h2.feature__title', null, feature.title),
-        h('p.feature__blurb', null, feature.blurb),
-        h('span.feature__meta', null, feature.meta())))),
+      FEATURES.map((key) => h('a.feature', { href: `#${FEATURE_PATHS[key]}` },
+        h('h2.feature__title', null, t(`home.features.${key}.title`)),
+        h('p.feature__blurb', null, t(`home.features.${key}.blurb`)),
+        h('span.feature__meta', null, featureMeta[key])))),
 
-    card('The course at a glance',
+    card(t('home.courseGlance'),
       h('ol.units', null, UNITS.map((unit, index) => {
         const lessons = lessonsInUnit(unit.id);
         const complete = lessons.filter((lesson) => progress.isLessonComplete(lesson.id)).length;
         return h('li.unit', { class: complete === lessons.length && lessons.length ? 'is-complete' : '' },
-          h('span.unit__index', null, String(index + 1)),
+          h('span.unit__index', null, app.i18n.number(index + 1)),
           h('div.unit__body', null,
-            h('h3.unit__title', null, unit.title),
-            h('p.unit__blurb', null, unit.blurb)),
-          h('span.unit__count', null, `${complete}/${lessons.length}`));
+            h('h3.unit__title', null, t(`units.${unit.id}.title`)),
+            h('p.unit__blurb', null, t(`units.${unit.id}.blurb`))),
+          h('span.unit__count', null, `${app.i18n.number(complete)}/${app.i18n.number(lessons.length)}`));
       }))),
 
     h('section.note', null,
-      h('h2.note__title', null, 'How this works'),
-      h('p.prose', null,
-        'Everything runs in your browser. The piano sound is synthesised with the Web Audio API rather than ',
-        'downloaded, there is no server, and your progress is stored locally on this device — so nothing you ',
-        'play leaves your machine, and the whole thing keeps working with the network switched off.'),
-      h('p.prose', null,
-        'All the music in the song library is in the public domain.')),
+      h('h2.note__title', null, t('home.howItWorks')),
+      h('p.prose', null, t('home.howItWorksBody')),
+      h('p.prose', null, t('home.publicDomain'))),
   );
 
-  app.setView(page, { title: 'Learn piano, free' });
+  app.setView(page, { title: t('app.tagline') });
 }

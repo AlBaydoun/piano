@@ -18,10 +18,11 @@ const DEFAULT_PROGRESS = {
 
 const DEFAULT_SETTINGS = {
   volume: 0.75,
-  showNoteNames: 'always', // 'always' | 'c-only' | 'never'
-  labelStyle: 'letters', // 'letters' | 'solfege'
+  showNoteNames: 'c-only', // 'never' | 'c-only' | 'always' | 'all'
   tempo: 90,
   keyboardRange: 'auto', // 'auto' | 'small' | 'medium' | 'large' | 'full'
+  locale: null, // null means "detect from the browser"
+  noteSystem: 'auto', // 'auto' | 'letters' | 'german' | 'solfege'
   theme: 'auto',
 };
 

@@ -1,59 +1,61 @@
 /** Just the piano — with live chord detection, a scale guide, and recording. */
 
-import { h, select, formatDuration } from '../ui.js';
+import { h, select, templateNodes } from '../ui.js';
+import { i18n, t } from '../i18n.js';
 import { Staff } from '../staff.js';
-import {
-  SCALES, SHARP_NAMES, identifyChord, intervalBetween, midiToName, isInScale,
-} from '../theory.js';
-
-const ROOTS = SHARP_NAMES.map((name, index) => ({ value: String(60 + index), label: name }));
+import { SCALES, SHARP_NAMES, identifyChord, intervalBetween, isInScale } from '../theory.js';
 
 export function render(app) {
   let guideRoot = 60;
   let guideScale = 'none';
   let recording = null;
   let playback = null;
+  let lastRecording = [];
 
-  const chordName = h('div.freeplay__chord', null, '—');
-  const chordNotes = h('div.freeplay__notes', null, 'Play three or more notes together and the chord is named here.');
+  const chordName = h('div.freeplay__chord', { dir: 'ltr' }, '—');
+  const chordNotes = h('div.freeplay__notes', null, t('freeplay.emptyHint'));
   const staffHost = h('div.freeplay__staff');
-  const staff = new Staff(staffHost, { clef: 'grand', spacing: 13, minWidth: 300 });
+  const staff = new Staff(staffHost, { clef: 'grand', spacing: 14, minWidth: 300 });
 
-  const recordButton = h('button.btn.btn--primary', { type: 'button', onclick: toggleRecord }, 'Record');
-  const playButton = h('button.btn.btn--ghost', { type: 'button', disabled: true, onclick: playRecording }, 'Play back');
+  const recordButton = h('button.btn.btn--primary', { type: 'button', onclick: toggleRecord }, t('actions.record'));
+  const playButton = h('button.btn.btn--ghost', { type: 'button', disabled: true, onclick: playRecording }, t('actions.playBack'));
   const recordStatus = h('span.freeplay__rec-status');
+
+  const rootOptions = SHARP_NAMES.map((_, index) => ({
+    value: String(60 + index),
+    label: app.noteName(60 + index, { short: true }),
+  }));
 
   const page = h('div.page.page--freeplay', null,
     h('header.page__header', null,
-      h('h1.page__title', null, 'Free play'),
-      h('p.page__lede', null,
-        'Nothing is being scored here. Use the mouse, your computer keyboard (', h('kbd', null, 'Z'), '–',
-        h('kbd', null, 'M'), ' and ', h('kbd', null, 'Q'), '–', h('kbd', null, 'P'), '), or a MIDI piano. ',
-        'Hold ', h('kbd', null, 'Space'), ' for sustain, and use ', h('kbd', null, '←'), h('kbd', null, '→'),
-        ' to shift the computer keyboard by an octave.')),
+      h('h1.page__title', null, t('freeplay.title')),
+      h('p.page__lede', null, templateNodes('freeplay.lede', {
+        space: h('kbd', null, 'Space'),
+        arrows: h('span.keys', { dir: 'ltr' }, h('kbd', null, '←'), h('kbd', null, '→')),
+      }))),
 
     h('div.freeplay__grid', null,
       h('section.card', null,
-        h('h2.card__title', null, 'What you are playing'),
+        h('h2.card__title', null, t('freeplay.whatYouPlay')),
         chordName,
         chordNotes,
         staffHost),
 
       h('section.card', null,
-        h('h2.card__title', null, 'Scale guide'),
-        h('p.prose', null, 'Highlight the notes of a scale on the keyboard so you can improvise without hitting anything sour.'),
+        h('h2.card__title', null, t('freeplay.scaleGuide')),
+        h('p.prose', null, t('freeplay.scaleGuideBlurb')),
         h('div.freeplay__controls', null,
-          select({ label: 'Root', value: String(guideRoot), options: ROOTS, onChange: (value) => { guideRoot = Number(value); applyGuide(); } }),
+          select({ label: t('reference.root'), value: String(guideRoot), options: rootOptions, onChange: (value) => { guideRoot = Number(value); applyGuide(); } }),
           select({
-            label: 'Scale',
+            label: t('reference.scale'),
             value: guideScale,
-            options: [{ value: 'none', label: 'Off' }, ...Object.entries(SCALES).map(([value, config]) => ({ value, label: config.name }))],
+            options: [{ value: 'none', label: t('freeplay.guideOff') }, ...Object.keys(SCALES).map((value) => ({ value, label: i18n.scaleName(value) }))],
             onChange: (value) => { guideScale = value; applyGuide(); },
           }))),
 
       h('section.card', null,
-        h('h2.card__title', null, 'Record'),
-        h('p.prose', null, 'Capture what you play and hear it back. Recordings live in this tab only — reloading clears them.'),
+        h('h2.card__title', null, t('freeplay.recordTitle')),
+        h('p.prose', null, t('freeplay.recordBlurb')),
         h('div.freeplay__controls', null, recordButton, playButton, recordStatus))),
   );
 
@@ -61,9 +63,7 @@ export function render(app) {
     app.keyboard.clearMarks('ghost');
     app.keyboard.clearMarks('root');
     if (guideScale === 'none') return;
-    const low = app.keyboard.low;
-    const high = app.keyboard.high;
-    for (let midi = low; midi <= high; midi += 1) {
+    for (let midi = app.keyboard.low; midi <= app.keyboard.high; midi += 1) {
       if (isInScale(midi, guideRoot, guideScale)) {
         app.keyboard.mark(midi, midi % 12 === guideRoot % 12 ? 'root' : 'ghost');
       }
@@ -74,24 +74,23 @@ export function render(app) {
     const notes = [...app.sounding].sort((a, b) => a - b);
     if (!notes.length) {
       chordName.textContent = '—';
-      chordNotes.textContent = 'Play three or more notes together and the chord is named here.';
+      chordNotes.textContent = t('freeplay.emptyHint');
       staff.setEvents([]);
       return;
     }
     staff.setEvents([{ midis: notes, duration: 'whole' }]);
-    chordNotes.textContent = notes.map((midi) => midiToName(midi)).join('   ');
+    chordNotes.textContent = notes.map((midi) => app.noteName(midi, { octave: true })).join('   ');
     const identified = identifyChord(notes);
     if (identified) {
-      const bass = midiToName(notes[0], { octave: false });
+      const bass = app.noteName(notes[0], { short: true });
       const slash = identified.inversion > 0 ? `/${bass}` : '';
-      chordName.textContent = `${identified.name}${slash}`;
+      chordName.textContent = `${i18n.chordSymbol(identified.root + 60, identified.type)}${slash}`;
     } else if (notes.length === 1) {
-      chordName.textContent = midiToName(notes[0]);
+      chordName.textContent = app.noteName(notes[0], { octave: true });
     } else if (notes.length === 2) {
-      const interval = intervalBetween(notes[0], notes[1]);
-      chordName.textContent = interval.name;
+      chordName.textContent = i18n.intervalName(intervalBetween(notes[0], notes[1]).semitones);
     } else {
-      chordName.textContent = 'Not a standard chord';
+      chordName.textContent = t('freeplay.notAChord');
     }
   }
 
@@ -99,20 +98,20 @@ export function render(app) {
     if (recording) {
       const events = recording.events;
       recording = null;
-      recordButton.textContent = 'Record';
+      recordButton.textContent = t('actions.record');
       recordButton.classList.remove('is-recording');
       playButton.disabled = events.length === 0;
       lastRecording = events;
-      recordStatus.textContent = events.length ? `${events.length} notes captured` : 'Nothing captured';
+      recordStatus.textContent = events.length
+        ? t('freeplay.captured', { count: events.length, n: events.length })
+        : t('freeplay.nothingCaptured');
     } else {
       recording = { startedAt: performance.now(), events: [] };
-      recordButton.textContent = 'Stop';
+      recordButton.textContent = t('actions.stop');
       recordButton.classList.add('is-recording');
-      recordStatus.textContent = 'Recording…';
+      recordStatus.textContent = t('freeplay.recording');
     }
   }
-
-  let lastRecording = [];
 
   function playRecording() {
     if (!lastRecording.length || playback) return;
@@ -129,10 +128,10 @@ export function render(app) {
     timers.push(setTimeout(() => {
       playback = null;
       playButton.disabled = false;
-      recordStatus.textContent = `${lastRecording.length} notes captured`;
+      recordStatus.textContent = t('freeplay.captured', { count: lastRecording.length, n: lastRecording.length });
     }, total));
     playback = timers;
-    recordStatus.textContent = `Playing back — ${formatDuration(total / 1000)}`;
+    recordStatus.textContent = t('freeplay.playingBack', { duration: app.duration(total / 1000) });
   }
 
   const unsubscribe = app.onNote((event) => {
@@ -148,7 +147,7 @@ export function render(app) {
     updateChord();
   });
 
-  app.setView(page, { title: 'Free play' });
+  app.setView(page, { title: t('freeplay.title') });
   applyGuide();
   updateChord();
 

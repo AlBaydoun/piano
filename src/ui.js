@@ -3,6 +3,8 @@
  * being a wall of `document.createElement`.
  */
 
+import { i18n } from './i18n.js';
+
 /**
  * Build an element.
  * @param {string} tag  tag name, optionally with `.class` and `#id` suffixes
@@ -66,6 +68,25 @@ export function richText(text) {
   const span = document.createElement('span');
   span.innerHTML = html;
   return span;
+}
+
+/**
+ * Resolve a translation whose placeholders should become DOM nodes rather
+ * than text — keycaps in a sentence, for instance. Keeping the whole
+ * sentence in the locale file lets translators move the placeholders
+ * wherever their grammar needs them.
+ *
+ * @param {string} key
+ * @param {Record<string, Node|string>} nodes
+ */
+export function templateNodes(key, nodes) {
+  const raw = i18n.format(String(i18n.raw(key) ?? key));
+  return raw.split(/(\{\w+\})/g).map((part) => {
+    const match = /^\{(\w+)\}$/.exec(part);
+    if (!match) return part;
+    const replacement = nodes[match[1]];
+    return replacement === undefined ? part : replacement;
+  });
 }
 
 /** `<p>` elements for an array of prose strings. */

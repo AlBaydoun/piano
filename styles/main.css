@@ -34,10 +34,11 @@
   --shadow: 0 8px 30px rgb(0 0 0 / 45%);
   --dock-height: clamp(120px, 20vh, 190px);
   --dock-pad: clamp(4px, 1.5vw, 16px);
-  --page-pad: clamp(16px, 4vw, 40px);
-  --max-width: 1180px;
+  --page-pad: clamp(16px, 3.5vw, 56px);
+  --max-width: 1720px;
+  --reading-width: 74ch;
 
-  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Arabic", "Geeza Pro", "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
@@ -106,10 +107,10 @@ table { border-collapse: collapse; }
 }
 
 .skip-link {
-  position: absolute; left: -9999px; top: 8px; z-index: 100;
+  position: absolute; inset-inline-start: -9999px; top: 8px; z-index: 100;
   background: var(--accent); color: #fff; padding: 10px 16px; border-radius: var(--radius-sm);
 }
-.skip-link:focus { left: 8px; }
+.skip-link:focus { inset-inline-start: 8px; }
 
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 
@@ -122,7 +123,7 @@ table { border-collapse: collapse; }
 .boot__logo { font-size: 48px; color: var(--accent); }
 .boot--error h1 { color: var(--text); margin-bottom: 8px; }
 .error {
-  font-family: var(--font-mono); font-size: 12px; text-align: left; white-space: pre-wrap;
+  font-family: var(--font-mono); font-size: 12px; text-align: start; white-space: pre-wrap; direction: ltr;
   background: var(--bg-sunken); border: 1px solid var(--border); border-radius: var(--radius-sm);
   padding: 12px; max-width: 640px; overflow: auto; color: var(--text-muted);
 }
@@ -158,6 +159,18 @@ table { border-collapse: collapse; }
 .topbar__link.is-active { color: var(--text); background: var(--accent-soft); }
 
 .topbar__transport { display: flex; flex: none; align-items: center; gap: 10px; }
+
+.topbar__language-wrap { flex: none; }
+.topbar__language {
+  font: inherit; font-size: 13px; font-weight: 550; padding: 6px 10px; cursor: pointer;
+  color: var(--text); background: var(--panel); border: 1px solid var(--border); border-radius: 999px;
+}
+.topbar__language:hover { background: var(--panel-hover); }
+
+/* Runs of Latin text inside right-to-left prose: chord symbols, time
+   signatures, note trails. Isolating them stops the bidi algorithm from
+   reordering their punctuation. */
+[dir] .keys, [dir] [dir="ltr"] { unicode-bidi: isolate; }
 
 .iconbtn {
   display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px;
@@ -200,8 +213,8 @@ table { border-collapse: collapse; }
 
 .page__header { display: flex; flex-direction: column; gap: 6px; }
 .page__title { font-size: clamp(26px, 4vw, 38px); }
-.page__lede { color: var(--text-muted); max-width: 68ch; margin: 0; }
-.prose { color: var(--text-muted); max-width: 72ch; }
+.page__lede { color: var(--text-muted); max-width: var(--reading-width); margin: 0; }
+.prose { color: var(--text-muted); max-width: var(--reading-width); }
 .prose strong { color: var(--text); font-weight: 650; }
 .is-muted { color: var(--text-faint); }
 
@@ -267,10 +280,9 @@ table { border-collapse: collapse; }
 .stat__value { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .stat__label { font-size: 12px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.06em; }
 
-.card > .table, .table { width: 100%; font-size: 14px; }
-.table { display: block; overflow-x: auto; }
-.table thead, .table tbody { display: table; width: 100%; }
-.table th, .table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.table { width: 100%; font-size: 14px; }
+.table-scroll { overflow-x: auto; }
+.table th, .table td { text-align: start; padding: 8px 10px; border-bottom: 1px solid var(--border); }
 .table thead th { color: var(--text-faint); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
 .table tbody th { color: var(--text-faint); font-weight: 600; }
 .table td { font-variant-numeric: tabular-nums; }
@@ -322,19 +334,21 @@ table { border-collapse: collapse; }
 .unit__blurb { font-size: 13px; color: var(--text-faint); margin: 0; }
 .unit__count { font-size: 13px; color: var(--text-faint); font-variant-numeric: tabular-nums; }
 
-.note { border-left: 3px solid var(--accent); padding-left: 18px; }
+.note { border-inline-start: 3px solid var(--accent); padding-inline-start: 18px; }
 .note__title { font-size: 15px; margin-bottom: 8px; }
 
 /* -- lesson list ----------------------------------------------------------- */
 
 .unit-block { display: flex; flex-direction: column; gap: 10px; }
-.unit-block__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.unit-block__head { display: flex; align-items: baseline; gap: 14px; }
 .unit-block__title { font-size: 20px; }
 .unit-block__count { font-size: 13px; color: var(--text-faint); font-variant-numeric: tabular-nums; }
 .unit-block__count.is-complete { color: var(--good); }
 .unit-block__blurb { font-size: 14px; color: var(--text-muted); margin: 0; }
 
-.lesson-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.lesson-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; align-items: stretch; }
+.lesson-list > li { display: flex; }
+.lesson-list .lesson-row { flex: 1; }
 .lesson-row {
   display: flex; align-items: center; gap: 14px; padding: 12px 16px;
   background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-sm);
@@ -361,6 +375,8 @@ table { border-collapse: collapse; }
 .page--lesson { gap: 18px; }
 .lesson__header { display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .lesson__back { font-size: 14px; text-decoration: none; color: var(--text-muted); }
+.lesson__back::before { content: '\2190'; margin-inline-end: 6px; }
+[dir="rtl"] .lesson__back::before { content: '\2192'; }
 .lesson__back:hover { color: var(--text); }
 .lesson__meta { flex: 1; min-width: 200px; }
 .lesson__unit { font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent-text); font-weight: 650; }
@@ -395,12 +411,12 @@ table { border-collapse: collapse; }
 .notetrail__note.is-current { border-color: var(--accent); color: var(--accent-text); background: var(--accent-soft); }
 .notetrail__note.is-done { border-color: var(--good); color: var(--good); background: var(--good-soft); }
 .notetrail__note.is-revealed { border-color: var(--warm); color: var(--warm); }
-.notetrail__finger { font-size: 9px; opacity: 0.7; margin-left: 2px; }
+.notetrail__finger { font-size: 9px; opacity: 0.7; margin-inline-start: 2px; }
 
 .quiz__question { font-size: 16px; font-weight: 600; color: var(--text); margin: 0; }
 .quiz__options { display: grid; gap: 8px; width: 100%; max-width: 520px; }
 .quiz__option {
-  text-align: left; font: inherit; font-size: 14px; padding: 11px 16px; cursor: pointer;
+  text-align: start; font: inherit; font-size: 14px; padding: 11px 16px; cursor: pointer;
   background: var(--bg-sunken); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text);
 }
 .quiz__option:hover:not(:disabled) { border-color: var(--border-strong); background: var(--panel-hover); }
@@ -522,13 +538,13 @@ table { border-collapse: collapse; }
 .player__titles { flex: 1; min-width: 200px; }
 .player__title { font-size: clamp(22px, 3.4vw, 30px); }
 .player__composer { font-size: 13px; color: var(--text-faint); margin: 0; }
-.player__readout { display: flex; flex-direction: column; align-items: flex-end; font-size: 13px; color: var(--text-muted); }
+.player__readout { display: flex; flex-direction: column; align-items: flex-end; font-size: 13px; color: var(--text-muted); text-align: end; }
 .player__accuracy { color: var(--good); font-weight: 600; }
 .player__controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
 
 /* Width and offset are set in script so the lanes line up with the keys. */
 .player__fall {
-  position: relative; align-self: flex-start; height: clamp(220px, 42vh, 460px);
+  position: relative; direction: ltr; align-self: start; height: clamp(220px, 42vh, 460px);
   background: linear-gradient(180deg, var(--bg-sunken), color-mix(in srgb, var(--bg-sunken) 60%, var(--panel)));
   border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
 }
@@ -579,7 +595,7 @@ table { border-collapse: collapse; }
 }
 .dock__btn:hover { color: var(--text); background: var(--panel-hover); }
 .dock__btn.is-on { color: var(--good); border-color: var(--good); }
-.dock__status { font-size: 12px; color: var(--text-faint); flex: 1; text-align: right; min-height: 1em; }
+.dock__status { font-size: 12px; color: var(--text-faint); flex: 1; text-align: end; min-height: 1em; }
 .dock__piano {
   flex: none; height: var(--dock-height);
   padding: 0 var(--dock-pad) clamp(6px, 1.4vh, 14px);
@@ -591,8 +607,10 @@ table { border-collapse: collapse; }
 
 /* -- the piano itself ------------------------------------------------------ */
 
-/* No height here: the container may be the dock, which sets its own. */
-.piano { position: relative; user-select: none; -webkit-user-select: none; touch-action: none; }
+/* No height here: the container may be the dock, which sets its own.
+   A keyboard runs low-to-high left-to-right in every language, so the
+   instrument keeps its direction even when the page is right-to-left. */
+.piano { position: relative; direction: ltr; user-select: none; -webkit-user-select: none; touch-action: none; }
 .piano__frame { position: relative; height: 100%; }
 .piano__whites { display: flex; height: 100%; }
 .piano__blacks { position: absolute; inset: 0; pointer-events: none; }
@@ -656,7 +674,8 @@ table { border-collapse: collapse; }
 
 /* -- notation -------------------------------------------------------------- */
 
-.staff { width: 100%; }
+/* Notation, like the keyboard, is always read left to right. */
+.staff { width: 100%; direction: ltr; }
 .staff__svg { display: block; max-width: 100%; height: auto; margin: 0 auto; }
 .staff__line { stroke: var(--text-faint); stroke-width: 1; opacity: 0.8; }
 .staff__line--bar { stroke-width: 1.4; }
@@ -678,6 +697,22 @@ table { border-collapse: collapse; }
 .staff__event.is-wrong .staff__notehead,
 .staff__event.is-wrong .staff__stem,
 .staff__event.is-wrong .staff__accidental { fill: var(--bad); stroke: var(--bad); }
+
+/* -- wide screens ---------------------------------------------------------- */
+
+@media (min-width: 1100px) {
+  .units { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 32px; }
+  .lesson-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .page--lesson { max-width: min(1200px, 100%); }
+  .page--drill { max-width: min(1280px, 100%); }
+}
+
+@media (min-width: 1500px) {
+  .grid--features { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .grid--songs { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .units { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .hero__lede { max-width: 78ch; }
+}
 
 /* -- narrow screens -------------------------------------------------------- */
 

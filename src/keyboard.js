@@ -6,9 +6,8 @@
  * tracked per pointer id so glissandi and multi-touch chords both work.
  */
 
-import { isBlackKey, midiToName, pitchClass, SHARP_NAMES } from './theory.js';
-
-const SOLFEGE = ['Do', 'Di', 'Re', 'Ri', 'Mi', 'Fa', 'Fi', 'Sol', 'Si', 'La', 'Li', 'Ti'];
+import { isBlackKey, pitchClass } from './theory.js';
+import { i18n } from './i18n.js';
 
 /**
  * How far a black key is nudged from the midpoint between its neighbours,
@@ -45,7 +44,6 @@ export class PianoKeyboard {
     this.onNoteOn = options.onNoteOn ?? (() => {});
     this.onNoteOff = options.onNoteOff ?? (() => {});
     this.labels = options.labels ?? 'c-only';
-    this.labelStyle = options.labelStyle ?? 'letters';
     this.interactive = options.interactive !== false;
     /** @type {Map<number, HTMLElement>} */
     this.keys = new Map();
@@ -79,17 +77,13 @@ export class PianoKeyboard {
     this._updateLabels();
   }
 
-  setLabelStyle(style) {
-    this.labelStyle = style;
-    this._updateLabels();
-  }
-
+  /** Key names follow whichever naming system the reader has chosen. */
   _labelFor(midi) {
     if (this.labels === 'never') return '';
-    if (this.labels === 'c-only') return pitchClass(midi) === 0 ? midiToName(midi) : '';
-    const pc = pitchClass(midi);
-    if (this.labelStyle === 'solfege') return SOLFEGE[pc];
-    return this.labels === 'all-octaves' ? midiToName(midi) : SHARP_NAMES[pc];
+    if (this.labels === 'c-only') {
+      return pitchClass(midi) === 0 ? i18n.noteName(midi, { octave: true, short: true }) : '';
+    }
+    return i18n.noteName(midi, { short: true });
   }
 
   render() {
@@ -97,7 +91,10 @@ export class PianoKeyboard {
     container.innerHTML = '';
     container.classList.add('piano');
     container.setAttribute('role', 'group');
-    container.setAttribute('aria-label', `Piano keyboard, ${midiToName(this.low)} to ${midiToName(this.high)}`);
+    container.setAttribute('aria-label', i18n.t('dock.keyboardLabel', {
+      low: i18n.noteName(this.low, { octave: true }),
+      high: i18n.noteName(this.high, { octave: true }),
+    }));
     this.keys.clear();
 
     const whiteNotes = [];
@@ -147,7 +144,7 @@ export class PianoKeyboard {
     key.className = `piano__key piano__key--${colour}`;
     key.dataset.midi = String(midi);
     key.setAttribute('role', 'button');
-    key.setAttribute('aria-label', midiToName(midi));
+    key.setAttribute('aria-label', i18n.noteName(midi, { octave: true }));
 
     const label = document.createElement('span');
     label.className = 'piano__label';

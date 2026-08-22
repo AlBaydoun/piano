@@ -1,24 +1,25 @@
 /** Sight-reading drill: a note appears, you play it. */
 
 import { h, select, toast } from '../ui.js';
+import { i18n, t } from '../i18n.js';
 import { Staff } from '../staff.js';
 import { Scoreboard, drillPage } from './drillkit.js';
-import { midiToName, randomInt, isBlackKey, KEY_SIGNATURES, keySignatureFor } from '../theory.js';
+import { randomInt, isBlackKey, KEY_SIGNATURES, keySignatureFor } from '../theory.js';
 
 const LEVELS = {
-  starter: { label: 'C position', low: 60, high: 67, accidentals: false, clefs: ['treble'] },
-  treble: { label: 'Treble staff', low: 60, high: 81, accidentals: false, clefs: ['treble'] },
-  bass: { label: 'Bass staff', low: 41, high: 60, accidentals: false, clefs: ['bass'] },
-  grand: { label: 'Grand staff', low: 43, high: 79, accidentals: false, clefs: ['grand'] },
-  ledger: { label: 'With ledger lines', low: 36, high: 88, accidentals: false, clefs: ['grand'] },
-  chromatic: { label: 'Sharps and flats', low: 48, high: 84, accidentals: true, clefs: ['grand'] },
+  starter: { low: 60, high: 67, accidentals: false, clef: 'treble' },
+  treble: { low: 60, high: 81, accidentals: false, clef: 'treble' },
+  bass: { low: 41, high: 60, accidentals: false, clef: 'bass' },
+  grand: { low: 43, high: 79, accidentals: false, clef: 'grand' },
+  ledger: { low: 36, high: 88, accidentals: false, clef: 'grand' },
+  chromatic: { low: 48, high: 84, accidentals: true, clef: 'grand' },
 };
 
 export function render(app) {
   const scoreboard = new Scoreboard(app, 'note-reading');
   const { page, stage, controls, status } = drillPage({
-    title: 'Sight reading',
-    lede: 'Play the note you see. Start narrow and widen the range once you stop having to count lines.',
+    title: t('noteReader.title'),
+    lede: t('noteReader.lede'),
     scoreboard,
   });
 
@@ -28,14 +29,14 @@ export function render(app) {
   let locked = false;
 
   const staffHost = h('div.drill__staff');
-  const staff = new Staff(staffHost, { clef: 'treble', spacing: 18, minWidth: 300 });
-  stage.append(staffHost, h('p.drill__hint', null, 'Play it on the keyboard below, or with your computer keys.'));
+  const staff = new Staff(staffHost, { clef: 'treble', spacing: 20, minWidth: 300 });
+  stage.append(staffHost, h('p.drill__hint', null, t('noteReader.hint')));
 
   controls.append(
     select({
-      label: 'Level',
+      label: t('noteReader.level'),
       value: level,
-      options: Object.entries(LEVELS).map(([value, config]) => ({ value, label: config.label })),
+      options: Object.keys(LEVELS).map((value) => ({ value, label: t(`noteReader.levels.${value}`) })),
       onChange: (value) => {
         level = value;
         applyRange();
@@ -43,22 +44,22 @@ export function render(app) {
       },
     }),
     select({
-      label: 'Key',
+      label: t('noteReader.key'),
       value: keyName,
-      options: Object.keys(KEY_SIGNATURES).map((value) => ({ value, label: `${value} major` })),
+      options: Object.keys(KEY_SIGNATURES).map((value) => ({ value, label: i18n.keyName(value, 'major') })),
       onChange: (value) => {
         keyName = value;
         staff.setKeySignature(keySignatureFor(keyName));
         nextQuestion();
       },
     }),
-    h('button.btn.btn--ghost.btn--small', { type: 'button', onclick: () => hear() }, 'Hear the note'),
-    h('button.btn.btn--ghost.btn--small', { type: 'button', onclick: () => skip() }, 'Skip'),
+    h('button.btn.btn--ghost.btn--small', { type: 'button', onclick: () => hear() }, t('noteReader.hearNote')),
+    h('button.btn.btn--ghost.btn--small', { type: 'button', onclick: () => skip() }, t('actions.skip')),
   );
 
   function applyRange() {
     const config = LEVELS[level];
-    staff.setClef(config.clefs[0]);
+    staff.setClef(config.clef);
     app.keyboard.ensureVisible([config.low, config.high]);
   }
 
@@ -88,7 +89,7 @@ export function render(app) {
 
   function skip() {
     if (current === null) return;
-    status.textContent = `That was ${midiToName(current)}.`;
+    status.textContent = t('noteReader.thatWas', { note: app.noteName(current, { octave: true }) });
     app.keyboard.mark(current, 'hint');
     setTimeout(() => nextQuestion(), 900);
   }
@@ -101,13 +102,15 @@ export function render(app) {
       locked = true;
       staff.setState(0, 'correct');
       app.keyboard.mark(current, 'correct');
-      status.textContent = `${midiToName(current)} — correct`;
+      status.textContent = t('lesson.correctNote', { note: app.noteName(current, { octave: true }) });
       status.classList.add('is-correct');
-      if (scoreboard.streak > 0 && scoreboard.streak % 10 === 0) toast(`${scoreboard.streak} in a row`, { tone: 'good' });
+      if (scoreboard.streak > 0 && scoreboard.streak % 10 === 0) {
+        toast(t('noteReader.streakToast', { n: scoreboard.streak }), { tone: 'good' });
+      }
       setTimeout(nextQuestion, 600);
     } else {
       staff.setState(0, 'wrong');
-      status.textContent = `That was ${midiToName(event.midi)} — look again at which line or space it sits on.`;
+      status.textContent = t('noteReader.wrong', { note: app.noteName(event.midi, { octave: true }) });
       app.keyboard.mark(event.midi, 'wrong');
       setTimeout(() => {
         app.keyboard.unmark(event.midi, 'wrong');
@@ -116,7 +119,7 @@ export function render(app) {
     }
   });
 
-  app.setView(page, { title: 'Sight reading' });
+  app.setView(page, { title: t('noteReader.title') });
   applyRange();
   staff.setKeySignature(keySignatureFor(keyName));
   nextQuestion();

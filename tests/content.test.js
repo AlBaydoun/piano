@@ -3,11 +3,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { SONGS, getSong, parseVoice, compile, LEVEL_NAMES } from '../src/data/songs.js';
-import { LESSONS, UNITS, getLesson, nextLesson, lessonsInUnit } from '../src/data/lessons.js';
-import { LOWEST_KEY, HIGHEST_KEY, nameToMidi } from '../src/theory.js';
+import { SONGS, getSong, parseVoice, compile, LEVELS, STUDY_TAG, repertoire, studies } from '../src/data/songs.js';
+import { LESSONS, UNITS, getLesson, nextLesson, previousLesson, lessonsInUnit } from '../src/data/lessons.js';
+import { LOWEST_KEY, HIGHEST_KEY } from '../src/theory.js';
 
-const STEP_TYPES = new Set(['text', 'play', 'find', 'staff', 'quiz', 'metronome', 'song']);
+const STEP_TYPES = new Set(['text', 'play', 'find', 'staff', 'listen', 'quiz', 'metronome', 'song']);
 
 // -- notation parser --------------------------------------------------------
 
@@ -33,7 +33,7 @@ test('chord tokens start every note at the same beat', () => {
 
 test('rests advance the clock without producing notes', () => {
   assert.deepEqual(parseVoice('r:2 C4'), [{ midi: 60, beat: 2, duration: 1, hand: 'right' }]);
-  assert.deepEqual(parseVoice('-:1 C4')[0].beat, 1);
+  assert.equal(parseVoice('-:1 C4')[0].beat, 1);
 });
 
 test('barlines are decoration and do not affect timing', () => {
@@ -80,12 +80,19 @@ test('every song has playable notes within the 88 keys', () => {
 
 test('song metadata is complete and sane', () => {
   for (const song of SONGS) {
-    assert.ok(song.title && song.composer && song.about, `${song.id} is missing metadata`);
-    assert.ok(LEVEL_NAMES[song.level], `${song.id} has an unknown level ${song.level}`);
+    assert.ok(LEVELS.includes(song.level), `${song.id} has an unknown level ${song.level}`);
     assert.ok(song.tempo >= 40 && song.tempo <= 200, `${song.id} has tempo ${song.tempo}`);
     assert.equal(song.timeSignature.length, 2, `${song.id} has a malformed time signature`);
     assert.ok([2, 4, 8].includes(song.timeSignature[1]), `${song.id} has an odd beat unit`);
+    assert.ok(typeof song.keySignature === 'number', `${song.id} has no key signature`);
   }
+});
+
+test('studies and repertoire together account for every song', () => {
+  assert.equal(repertoire().length + studies().length, SONGS.length);
+  for (const study of studies()) assert.ok(study.tags.includes(STUDY_TAG));
+  for (const piece of repertoire()) assert.ok(!piece.tags?.includes(STUDY_TAG));
+  assert.ok(studies().length >= 4, 'the technical studies went missing');
 });
 
 test('the hands of a two-handed song overlap in time', () => {
@@ -106,8 +113,6 @@ test('bars line up with the time signature, allowing for pickups', () => {
   for (const song of SONGS) {
     const beatsPerBar = song.timeSignature[0];
     const remainder = song.lastBeat % beatsPerBar;
-    // A pickup makes the total a partial bar; anything else means a bar
-    // somewhere has the wrong number of beats in it.
     const tidy = remainder < 1e-6 || Math.abs(remainder - Math.round(remainder)) < 1e-6;
     assert.ok(tidy, `${song.id} ends mid-beat (${song.lastBeat} beats in ${beatsPerBar}/x)`);
   }
@@ -115,20 +120,25 @@ test('bars line up with the time signature, allowing for pickups', () => {
 
 // -- the course -------------------------------------------------------------
 
+test('the course is large enough to take a beginner a long way', () => {
+  assert.ok(LESSONS.length >= 50, `only ${LESSONS.length} lessons`);
+  assert.ok(UNITS.length >= 10, `only ${UNITS.length} units`);
+});
+
 test('lesson ids are unique and belong to a real unit', () => {
   const ids = LESSONS.map((lesson) => lesson.id);
   assert.equal(new Set(ids).size, ids.length, 'duplicate lesson id');
   const units = new Set(UNITS.map((unit) => unit.id));
   for (const lesson of LESSONS) {
     assert.ok(units.has(lesson.unit), `${lesson.id} is in unknown unit "${lesson.unit}"`);
-    assert.ok(lesson.title && lesson.summary, `${lesson.id} is missing a title or summary`);
     assert.ok(lesson.steps.length > 0, `${lesson.id} has no steps`);
   }
 });
 
-test('every unit has at least one lesson', () => {
+test('each unit declares the number of lessons it actually has', () => {
   for (const unit of UNITS) {
-    assert.ok(lessonsInUnit(unit.id).length > 0, `unit "${unit.id}" is empty`);
+    const actual = lessonsInUnit(unit.id).length;
+    assert.equal(actual, unit.lessons, `unit "${unit.id}" declares ${unit.lessons} lessons but has ${actual}`);
   }
 });
 
@@ -159,11 +169,19 @@ test('lesson steps are well formed', () => {
         assert.ok(['treble', 'bass', 'grand'].includes(step.clef ?? 'treble'), `${where} has clef "${step.clef}"`);
       }
 
+      if (step.type === 'listen') {
+        assert.ok(step.examples?.length, `${where} has no examples`);
+        for (const example of step.examples) {
+          assert.ok(example.notes?.length, `${where} has an empty example`);
+          for (const midi of example.notes) {
+            assert.ok(midi >= LOWEST_KEY && midi <= HIGHEST_KEY, `${where} plays ${midi}`);
+          }
+        }
+      }
+
       if (step.type === 'quiz') {
-        assert.ok(step.question, `${where} has no question`);
-        assert.ok(step.options.length >= 2, `${where} needs at least two options`);
-        assert.ok(step.answer >= 0 && step.answer < step.options.length, `${where} answer index is out of range`);
-        assert.ok(step.explain, `${where} has no explanation`);
+        assert.ok(step.options >= 2, `${where} needs at least two options`);
+        assert.ok(step.answer >= 0 && step.answer < step.options, `${where} answer index is out of range`);
       }
 
       if (step.type === 'song') {
@@ -177,11 +195,21 @@ test('lesson steps are well formed', () => {
   }
 });
 
+test('every lesson eventually asks the learner to do something', () => {
+  const passive = new Set(['text']);
+  const allReading = LESSONS.filter((lesson) => lesson.steps.every((step) => passive.has(step.type)));
+  // A couple of closing lessons are pure prose by design; anything more than
+  // that means a unit has drifted into being a textbook.
+  assert.ok(allReading.length <= 2, `too many read-only lessons: ${allReading.map((l) => l.id).join(', ')}`);
+});
+
 test('lesson lookup and ordering work', () => {
-  assert.equal(getLesson(LESSONS[0].id).title, LESSONS[0].title);
+  assert.equal(getLesson(LESSONS[0].id).id, LESSONS[0].id);
   assert.equal(getLesson('nope'), null);
   assert.equal(nextLesson(LESSONS[0].id).id, LESSONS[1].id);
   assert.equal(nextLesson(LESSONS.at(-1).id), null, 'the last lesson has no next');
+  assert.equal(previousLesson(LESSONS[0].id), null, 'the first lesson has no previous');
+  assert.equal(previousLesson(LESSONS[1].id).id, LESSONS[0].id);
 });
 
 test('lessons are grouped so that each unit runs consecutively', () => {
@@ -196,6 +224,15 @@ test('lessons are grouped so that each unit runs consecutively', () => {
   }
 });
 
+test('units appear in the course in the order they are declared', () => {
+  const declared = UNITS.map((unit) => unit.id);
+  const encountered = [];
+  for (const lesson of LESSONS) {
+    if (encountered.at(-1) !== lesson.unit) encountered.push(lesson.unit);
+  }
+  assert.deepEqual(encountered, declared);
+});
+
 test('illustrations reference notes that exist on the keyboard', () => {
   for (const lesson of LESSONS) {
     for (const step of lesson.steps) {
@@ -206,19 +243,9 @@ test('illustrations reference notes that exist on the keyboard', () => {
         for (const midi of event.midis ?? []) {
           assert.ok(midi >= LOWEST_KEY && midi <= HIGHEST_KEY, `${lesson.id} notates ${midi}`);
         }
-      }
-    }
-  }
-});
-
-test('note names used in prose parse as real notes', () => {
-  // Catches a typo like "Bb9" or "H4" creeping into lesson text.
-  const pattern = /\b([A-G](?:#|b)?[0-8])\b/g;
-  for (const lesson of LESSONS) {
-    for (const step of lesson.steps) {
-      for (const line of step.body ?? []) {
-        for (const [, name] of line.matchAll(pattern)) {
-          assert.doesNotThrow(() => nameToMidi(name), `${lesson.id} mentions "${name}"`);
+        if (event.label !== undefined) {
+          assert.ok(event.label >= LOWEST_KEY && event.label <= HIGHEST_KEY,
+            `${lesson.id} labels with ${event.label}, which should be a MIDI note`);
         }
       }
     }

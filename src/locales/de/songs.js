@@ -1,0 +1,32 @@
+/** Deutsche Titel, Komponisten und Beschreibungen der Stücke. */
+
+export default {
+  twinkle: { title: 'Morgen kommt der Weihnachtsmann', composer: 'Volksweise', about: 'Das erste Stück, das fast jeder lernt. Die rechte Hand bleibt durchgehend in einer Fünftonlage.' },
+  mary: { title: 'Mary Had a Little Lamb', composer: 'Volksweise', about: 'Nur fünf benachbarte Töne — ideal für eine erste Melodie.' },
+  'frere-jacques': { title: 'Bruder Jakob', composer: 'Volksweise', about: 'Vier kurze Phrasen, jede zweimal. Gut, um Wiederholungen erkennen zu lernen.' },
+  'row-your-boat': { title: 'Row, Row, Row Your Boat', composer: 'Volksweise', about: 'Ein Kanon im 6/8-Takt. Spielen Sie ihn mit jemandem im Abstand eines Takts.' },
+  'london-bridge': { title: 'London Bridge Is Falling Down', composer: 'Volksweise', about: 'Der punktierte Rhythmus erscheint schon im ersten Takt.' },
+  'old-macdonald': { title: 'Old MacDonald Had a Farm', composer: 'Volksweise', about: 'Die Melodie geht unter das eingestrichene {note:C} — ein erster Lagenwechsel.' },
+  'ode-to-joy': { title: 'Ode an die Freude', composer: 'Ludwig van Beethoven', about: 'Aus dem Finale der Neunten Sinfonie. Fast durchweg schrittweise und daher gut in der Hand.' },
+  'happy-birthday': { title: 'Happy Birthday to You', composer: 'Patty und Mildred Hill', about: 'Beginnt mit einem Auftakt: zwei schnelle Töne vor dem ersten vollen Takt.' },
+  'jingle-bells': { title: 'Jingle Bells', composer: 'James Lord Pierpont', about: 'Die vielen Tonwiederholungen machen es zu einer guten Übung für Gleichmäßigkeit.' },
+  'silent-night': { title: 'Stille Nacht', composer: 'Franz Xaver Gruber', about: 'Ein wiegender 3/4-Takt mit sanfter Punktierung in fast jeder Phrase.' },
+  'when-the-saints': { title: 'When the Saints Go Marching In', composer: 'Volksweise', about: 'Jede Phrase beginnt mit demselben dreitönigen Auftakt.' },
+  'auld-lang-syne': { title: 'Auld Lang Syne', composer: 'Schottische Volksweise', about: 'Fast durchgehend auf einem punktierten Lang-Kurz-Rhythmus gebaut.' },
+  greensleeves: { title: 'Greensleeves', composer: 'Englische Volksweise', about: 'Eine Mollmelodie mit erhöhter siebter Stufe an jeder Kadenz.' },
+  'fur-elise': { title: 'Für Elise (Anfang)', composer: 'Ludwig van Beethoven', about: 'Der berühmte Anfang, für eine Hand eingerichtet. Ein Schlag ist hier eine Achtelnote.' },
+  'minuet-in-g': { title: 'Menuett G-Dur (Anfang)', composer: 'Christian Petzold', about: 'Aus dem Notenbüchlein für Anna Magdalena Bach — lange Bach selbst zugeschrieben.' },
+  'canon-in-d': { title: 'Kanon in D (vereinfacht)', composer: 'Johann Pachelbel', about: 'Der berühmte achtstufige Basso ostinato mit dem ersten Violineinsatz darüber.' },
+  'prelude-in-c': { title: 'Präludium C-Dur, BWV 846 (Takte 1–4)', composer: 'Johann Sebastian Bach', about: 'Ein ununterbrochener Strom von Sechzehnteln. Ziel ist absolute Gleichmäßigkeit, nicht Tempo.' },
+  moonlight: { title: 'Mondscheinsonate (Anfang)', composer: 'Ludwig van Beethoven', about: 'Rollende Triolen über einem langsamen Oktavbass. Halten Sie die Triolen leise und eben.' },
+  'oh-susanna': { title: 'Oh! Susanna', composer: 'Stephen Foster', about: 'Eine fröhliche Melodie mit Auftakt und klarer I–V-Harmonie.' },
+  'yankee-doodle': { title: 'Yankee Doodle', composer: 'Volksweise', about: 'Schnell, schrittweise und ganz innerhalb einer Fünftonlage.' },
+  'brahms-lullaby': { title: 'Wiegenlied', composer: 'Johannes Brahms', about: 'Sanfter 3/4-Takt mit zweitönigem Auftakt. Eine gute Übung für leises, gleichmäßiges Spiel.' },
+
+  'five-finger-study': { title: 'Fünftonetüde', composer: 'Übung', about: 'Beide Hände parallel innerhalb einer Lage. Hören Sie auf fünf gleiche Klänge.' },
+  'scale-study': { title: 'C-Dur-Tonleiter, zwei Oktaven', composer: 'Übung', about: 'Zwei Oktaven hinauf und zurück, die Hände zwei Oktaven auseinander. Achten Sie auf beide Daumenuntersätze.' },
+  'arpeggio-study': { title: 'Arpeggio-Etüde auf I, IV und V', composer: 'Übung', about: 'Gebrochene Akkorde über gehaltenem Bass. Die Figur hinter sehr viel Klaviermusik.' },
+  'hanon-1': { title: 'Hanon, Übung Nr. 1', composer: 'Charles-Louis Hanon', about: 'Das klassische Muster für Fingerunabhängigkeit, schrittweise aufwärts. Langsam und gleichmäßig schlägt schnell und klumpig.' },
+  'chord-progression-study': { title: 'Verbindung I–V–vi–IV', composer: 'Übung', about: 'Vier Akkorde in enger Lage mit Grundton-Quint-Bass. Die Folge hinter erstaunlich vielen Popsongs.' },
+  'twelve-bar-blues': { title: 'Zwölftakt-Blues in C', composer: 'Übung', about: 'Ein vollständiger Blueschorus mit Walking Bass. Im Zuhörmodus starten und darüber improvisieren.' },
+};

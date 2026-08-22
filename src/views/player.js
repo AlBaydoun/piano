@@ -12,7 +12,8 @@
  *   play-along the music runs at tempo and your hits are scored
  */
 
-import { h, segmented, percent, toast } from '../ui.js';
+import { h, segmented, toast } from '../ui.js';
+import { i18n, t } from '../i18n.js';
 import { getSong } from '../data/songs.js';
 
 const LOOKAHEAD_BEATS = 6;
@@ -22,8 +23,8 @@ export function render(app, { params }) {
   const song = getSong(params.id);
   if (!song) {
     app.setView(h('div.page', null,
-      h('h1.page__title', null, 'Song not found'),
-      h('a.btn.btn--primary', { href: '#/songs' }, 'Back to the library')));
+      h('h1.page__title', null, t('player.notFound')),
+      h('a.btn.btn--primary', { href: '#/songs' }, t('player.backToLibrary'))));
     return null;
   }
 
@@ -51,27 +52,29 @@ export function render(app, { params }) {
   const fall = h('div.player__fall', null, canvas, h('div.player__hitline'));
   const positionBar = h('div.player__position-fill');
   const readout = h('div.player__readout');
-  const startButton = h('button.btn.btn--primary', { type: 'button', onclick: toggle }, 'Start');
-  const tempoValue = h('span.control__value', null, `${song.tempo} bpm`);
+  const startButton = h('button.btn.btn--primary', { type: 'button', onclick: toggle }, t('actions.start'));
+  const tempoValue = h('span.control__value', null, `${i18n.number(song.tempo)} ${t('transport.bpm')}`);
 
   const page = h('div.page.page--player', null,
     h('header.player__header', null,
-      h('a.lesson__back', { href: '#/songs' }, '← Songs'),
+      h('a.lesson__back', { href: '#/songs' }, t('songsView.title')),
       h('div.player__titles', null,
-        h('h1.player__title', null, song.title),
-        h('p.player__composer', null, `${song.composer} · ${song.key} · ${song.timeSignature[0]}/${song.timeSignature[1]}`)),
+        h('h1.player__title', null, t(`songs.${song.id}.title`)),
+        h('p.player__composer', null,
+          t(`songs.${song.id}.composer`), ' · ',
+          h('span', { dir: 'ltr' }, `${song.timeSignature[0]}/${song.timeSignature[1]}`))),
       readout),
 
     h('div.player__controls', null,
       startButton,
-      h('button.btn.btn--ghost', { type: 'button', onclick: restart }, 'Restart'),
+      h('button.btn.btn--ghost', { type: 'button', onclick: restart }, t('actions.restart')),
       segmented({
-        label: 'Mode',
+        label: t('player.mode'),
         value: mode,
         options: [
-          { value: 'wait', label: 'Wait for me' },
-          { value: 'along', label: 'Play along' },
-          { value: 'listen', label: 'Listen' },
+          { value: 'wait', label: t('player.modeWait') },
+          { value: 'along', label: t('player.modeAlong') },
+          { value: 'listen', label: t('player.modeListen') },
         ],
         onChange: (value) => {
           mode = value;
@@ -79,12 +82,12 @@ export function render(app, { params }) {
         },
       }),
       song.voices.length > 1 ? segmented({
-        label: 'Hands',
+        label: t('player.hands'),
         value: handFilter,
         options: [
-          { value: 'both', label: 'Both' },
-          { value: 'right', label: 'Right only' },
-          { value: 'left', label: 'Left only' },
+          { value: 'both', label: t('player.handsBoth') },
+          { value: 'right', label: t('player.handsRight') },
+          { value: 'left', label: t('player.handsLeft') },
         ],
         onChange: (value) => {
           handFilter = value;
@@ -92,43 +95,43 @@ export function render(app, { params }) {
         },
       }) : null,
       h('label.control', null,
-        h('span.control__label', null, 'Tempo'),
+        h('span.control__label', null, t('player.tempoLabel')),
         h('input.control__slider', {
           type: 'range', min: 30, max: 130, step: 5, value: 100,
-          'aria-label': 'Tempo percentage',
+          'aria-label': t('player.tempoPercent'),
           oninput: (event) => {
             tempoScale = Number(event.target.value) / 100;
-            tempoValue.textContent = `${Math.round(song.tempo * tempoScale)} bpm`;
+            tempoValue.textContent = `${i18n.number(Math.round(song.tempo * tempoScale))} ${t('transport.bpm')}`;
           },
         }),
         tempoValue),
       h('label.control', null,
-        h('span.control__label', null, 'Start at bar'),
+        h('span.control__label', null, t('player.startAtBar')),
         h('select.control__select', {
-          'aria-label': 'Start bar',
+          'aria-label': t('player.startAtBar'),
           onchange: (event) => {
             startBeat = Number(event.target.value);
             restart();
           },
-        }, Array.from({ length: totalBars }, (_, i) => h('option', { value: String(i * barLength) }, String(i + 1))))),
+        }, Array.from({ length: totalBars }, (_, i) => h('option', { value: String(i * barLength) }, i18n.number(i + 1))))),
       h('label.control.control--check', null,
         h('input', {
           type: 'checkbox',
           onchange: (event) => { looping = event.target.checked; },
         }),
-        h('span', null, 'Loop')),
+        h('span', null, t('player.loop'))),
     ),
 
     fall,
     h('div.player__position', null, positionBar),
-    h('p.player__about', null, song.about),
+    h('p.player__about', null, t(`songs.${song.id}.about`)),
     h('p.player__legend', null,
-      h('span.legend__swatch.legend__swatch--right'), ' right hand   ',
-      h('span.legend__swatch.legend__swatch--left'), ' left hand   ',
-      h('span.legend__swatch.legend__swatch--auto'), ' played for you'),
+      h('span.legend__swatch.legend__swatch--right'), ` ${t('player.legendRight')}\u00a0\u00a0`,
+      h('span.legend__swatch.legend__swatch--left'), ` ${t('player.legendLeft')}\u00a0\u00a0`,
+      h('span.legend__swatch.legend__swatch--auto'), ` ${t('player.legendAuto')}`),
   );
 
-  app.setView(page, { title: song.title });
+  app.setView(page, { title: t(`songs.${song.id}.title`) });
 
   // -- geometry ------------------------------------------------------------
 
@@ -140,16 +143,15 @@ export function render(app, { params }) {
 
     // The page is narrower than the keyboard, so the falling-note area is
     // pulled out of the page's content box to sit exactly above the keys.
-    // Doing it in script rather than CSS keeps it correct at every width,
-    // including when the page hits its max-width and centres itself.
-    const page = fall.parentElement;
-    const pageRect = page.getBoundingClientRect();
-    const contentLeft = pageRect.left + parseFloat(getComputedStyle(page).paddingLeft || '0');
-    fall.style.marginLeft = `${keyboardRect.left - contentLeft}px`;
+    // A transform is used rather than a margin because it is measured in
+    // physical pixels, so this stays correct in right-to-left layouts.
+    fall.style.transform = 'none';
     fall.style.width = `${keyboardRect.width}px`;
+    const untransformed = fall.getBoundingClientRect();
+    if (!untransformed.width) return;
+    fall.style.transform = `translateX(${keyboardRect.left - untransformed.left}px)`;
 
     const fallRect = fall.getBoundingClientRect();
-    if (!fallRect.width) return;
     // Absolute children are positioned from the padding box, so the border
     // has to come out of the offset or every lane sits a pixel to the right.
     canvas.style.left = `${keyboardRect.left - fallRect.left - fall.clientLeft}px`;
@@ -229,14 +231,14 @@ export function render(app, { params }) {
   async function start() {
     await app.engine.resume();
     running = true;
-    startButton.textContent = 'Pause';
+    startButton.textContent = t('actions.pause');
     lastFrame = performance.now();
     frameHandle = requestAnimationFrame(tick);
   }
 
   function stop() {
     running = false;
-    startButton.textContent = 'Start';
+    startButton.textContent = t('actions.start');
     if (frameHandle) cancelAnimationFrame(frameHandle);
     frameHandle = null;
     app.engine.allNotesOff();
@@ -246,9 +248,10 @@ export function render(app, { params }) {
     const attempted = stats.hit + stats.missed;
     const bar = Math.max(1, Math.floor(position / barLength) + 1);
     // replaceChildren is native and would stringify a null into the page.
-    const parts = [h('span.player__bar', null, `Bar ${Math.min(bar, totalBars)} / ${totalBars}`)];
+    const parts = [h('span.player__bar', null, t('player.bar', { current: Math.min(bar, totalBars), total: totalBars }))];
     if (mode !== 'listen') {
-      parts.push(h('span.player__accuracy', null, attempted ? `${percent(stats.hit / attempted)} accurate` : 'Ready'));
+      parts.push(h('span.player__accuracy', null,
+        attempted ? t('player.accurate', { value: app.percent(stats.hit / attempted) }) : t('player.ready')));
     }
     readout.replaceChildren(...parts);
     positionBar.style.width = `${Math.min(100, Math.max(0, (position / song.lastBeat) * 100))}%`;
@@ -334,7 +337,8 @@ export function render(app, { params }) {
     const accuracy = attempted ? stats.hit / attempted : 1;
     if (mode !== 'listen' && attempted > 0) {
       app.progress.recordSong(song.id, accuracy);
-      toast(`${song.title} — ${percent(accuracy)} accurate`, { tone: accuracy > 0.9 ? 'good' : 'info' });
+      toast(t('player.finished', { title: t(`songs.${song.id}.title`), value: app.percent(accuracy) }),
+        { tone: accuracy > 0.9 ? 'good' : 'info' });
     }
     updateReadout();
     draw();

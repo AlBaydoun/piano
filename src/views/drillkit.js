@@ -1,6 +1,7 @@
 /** Shared scaffolding for the practice drills: layout, scoring, streaks. */
 
-import { h, percent } from '../ui.js';
+import { h } from '../ui.js';
+import { i18n, t } from '../i18n.js';
 
 export class Scoreboard {
   constructor(app, drillId) {
@@ -12,17 +13,17 @@ export class Scoreboard {
     this.best = app.progress.drill(drillId).bestStreak;
 
     this.nodes = {
-      score: h('span.scoreboard__value', null, '0'),
+      score: h('span.scoreboard__value', null, i18n.number(0)),
       accuracy: h('span.scoreboard__value', null, '—'),
-      streak: h('span.scoreboard__value', null, '0'),
-      best: h('span.scoreboard__value', null, String(this.best)),
+      streak: h('span.scoreboard__value', null, i18n.number(0)),
+      best: h('span.scoreboard__value', null, i18n.number(this.best)),
     };
 
     this.node = h('div.scoreboard', null,
-      metric('Correct', this.nodes.score),
-      metric('Accuracy', this.nodes.accuracy),
-      metric('Streak', this.nodes.streak),
-      metric('Best streak', this.nodes.best));
+      metric(t('scoreboard.correct'), this.nodes.score),
+      metric(t('scoreboard.accuracy'), this.nodes.accuracy),
+      metric(t('scoreboard.streak'), this.nodes.streak),
+      metric(t('scoreboard.bestStreak'), this.nodes.best));
   }
 
   record(correct) {
@@ -35,10 +36,10 @@ export class Scoreboard {
       this.streak = 0;
     }
     this.app.progress.recordDrill(this.drillId, { correct, streak: this.streak });
-    this.nodes.score.textContent = String(this.correct);
-    this.nodes.accuracy.textContent = percent(this.correct / this.attempts);
-    this.nodes.streak.textContent = String(this.streak);
-    this.nodes.best.textContent = String(this.best);
+    this.nodes.score.textContent = i18n.number(this.correct);
+    this.nodes.accuracy.textContent = i18n.percent(this.correct / this.attempts);
+    this.nodes.streak.textContent = i18n.number(this.streak);
+    this.nodes.best.textContent = i18n.number(this.best);
   }
 }
 
@@ -57,7 +58,7 @@ export function drillPage({ title, lede, scoreboard }) {
 
   const page = h('div.page.page--drill', null,
     h('header.page__header', null,
-      h('a.lesson__back', { href: '#/practice' }, '← Practice'),
+      h('a.lesson__back', { href: '#/practice' }, t('practice.title')),
       h('h1.page__title', null, title),
       lede ? h('p.page__lede', null, lede) : null),
     scoreboard ? scoreboard.node : null,
