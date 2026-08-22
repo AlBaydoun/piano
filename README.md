@@ -44,7 +44,7 @@ and a twelve-bar blues. Three modes:
 You can slow any piece to 30% of its tempo, start from any bar, loop a section,
 and hand the left-hand part to the app while you work on the right.
 
-**Four practice drills**, each with running accuracy and a best streak:
+**Five practice drills**, each with running accuracy and a best streak:
 
 - **Sight reading** — a note appears, you play it. Treble, bass or grand staff,
   in any key, with or without accidentals
@@ -53,6 +53,12 @@ and hand the left-hand part to the app while you work on the right.
 - **Chord building** — you get a chord symbol, you play the chord. Triads
   through ninths, with inversions
 - **Key signatures** — name the key from the signature, or the other way round
+- **Rhythm** — a rhythm is written on a one-line staff, a bar of clicks counts
+  you in, and you tap it. Quarter notes through sixteenths, dotted notes,
+  syncopation, triplets and 6/8. Every note is marked on time, early, late or
+  missed, and you are told whether you are consistently ahead of the click or
+  behind it. Anything counts as a tap: a piano key, a computer key, the pad on
+  screen, or a MIDI keyboard
 
 **A reference section** for looking things up: any scale with its conventional
 fingering, any chord in any inversion, every key with its diatonic chords, and a
@@ -159,6 +165,7 @@ src/
   input.js            Web MIDI and computer-keyboard input
   keyboard.js         the on-screen piano
   staff.js            SVG music notation
+  rhythm-staff.js     SVG rhythm notation: one line, proportional, beamed
   storage.js          progress and settings in localStorage
   ui.js               small DOM helpers
   views/              one module per screen
@@ -189,7 +196,14 @@ to reason about. Staff placement goes through `spellNote()`, which returns a
 being the same key.
 
 **The clefs are vector paths, not a font.** No webfont to download and nothing
-to fail to load.
+to fail to load. So are the rests and the noteheads in the rhythm drill: a
+missing glyph in a rhythm exercise is not a cosmetic problem.
+
+**Rhythm is counted in clicks, not in quarter notes.** A click is what the
+player hears and taps against, so that is the unit the rhythm drill measures
+everything in — which is why an eighth note is worth one click in 6/8 and half
+a click in 4/4. Taps are timestamped from the audio clock, the same clock the
+clicks were scheduled on, rather than from `Date.now()`.
 
 **The keyboard is one instance, shared by every screen.** It lives in the dock at
 the bottom of the window and views borrow it to highlight notes, show fingering,

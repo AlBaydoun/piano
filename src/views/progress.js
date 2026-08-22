@@ -4,9 +4,9 @@ import { h, card, stat, toast, select } from '../ui.js';
 import { i18n, t } from '../i18n.js';
 import { LESSONS, UNITS, lessonsInUnit } from '../data/lessons.js';
 import { SONGS } from '../data/songs.js';
+import { DRILL_IDS } from '../data/drills.js';
 import { labelOptions, noteSystemOptions, rangeOptions } from '../app.js';
 
-const DRILL_KEYS = ['note-reading', 'ear-intervals', 'chord-recognition', 'key-signatures'];
 
 export function render(app) {
   const { progress, settings } = app;
@@ -48,7 +48,7 @@ export function render(app) {
             h('th', null, t('progress.drill')), h('th', null, t('progress.attempts')),
             h('th', null, t('progress.accuracy')), h('th', null, t('progress.bestStreak')))),
           h('tbody', null, drills.map(([id, record]) => h('tr', null,
-            h('td', null, DRILL_KEYS.includes(id) ? t(`practice.drills.${id}.title`) : id),
+            h('td', null, DRILL_IDS.includes(id) ? t(`practice.drills.${id}.title`) : id),
             h('td', null, i18n.number(record.attempts)),
             h('td', null, app.percent(record.correct / record.attempts)),
             h('td', null, i18n.number(record.bestStreak)))))))

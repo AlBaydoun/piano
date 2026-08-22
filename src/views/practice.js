@@ -2,13 +2,7 @@
 
 import { h } from '../ui.js';
 import { t } from '../i18n.js';
-
-const DRILLS = [
-  { id: 'note-reading', path: '/practice/notes' },
-  { id: 'ear-intervals', path: '/practice/ear' },
-  { id: 'chord-recognition', path: '/practice/chords' },
-  { id: 'key-signatures', path: '/practice/keys' },
-];
+import { DRILLS } from '../data/drills.js';
 
 export function render(app) {
   const page = h('div.page', null,

@@ -730,6 +730,66 @@ table { border-collapse: collapse; }
 .staff__event.is-wrong .staff__stem,
 .staff__event.is-wrong .staff__accidental { fill: var(--bad); stroke: var(--bad); }
 
+/* -- rhythm notation ------------------------------------------------------- */
+/* A one-line staff. Like the five-line one it reads left to right whatever the
+   page direction, so it is pinned to ltr. */
+
+.rhythm { width: 100%; direction: ltr; }
+.rhythm__svg { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+.rhythm__line { stroke: var(--text-faint); stroke-width: 1.2; opacity: 0.8; }
+.rhythm__bar { stroke: var(--text-faint); stroke-width: 1.4; }
+.rhythm__bar--final { stroke: var(--text); stroke-width: 2.6; }
+.rhythm__head { fill: var(--text); }
+.rhythm__head.is-hollow { fill: none; stroke: var(--text); stroke-width: 2.2; }
+.rhythm__stem { stroke: var(--text); stroke-width: 1.7; stroke-linecap: round; }
+.rhythm__beam { stroke: var(--text); stroke-width: 4.2; stroke-linecap: butt; }
+.rhythm__flag { stroke: var(--text); stroke-width: 2.2; stroke-linecap: round; }
+.rhythm__dot { fill: var(--text); }
+.rhythm__rest { fill: var(--text-muted); }
+.rhythm__rest-stroke { stroke: var(--text-muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.rhythm__time { fill: var(--text); font-family: var(--font); font-weight: 600; }
+.rhythm__tuplet { stroke: var(--text-muted); stroke-width: 1.3; }
+.rhythm__tuplet-number { fill: var(--text-muted); font-family: var(--font); font-style: italic; font-weight: 600; }
+.rhythm__playhead {
+  stroke: var(--accent); stroke-width: 2; stroke-linecap: round;
+  transition: opacity 120ms ease;
+}
+
+/* Verdicts. On time is good; early or late is a warning rather than a failure
+   (the note was played, just not where it was written); a miss is neither. */
+.rhythm__note.is-on :is(.rhythm__head, .rhythm__stem, .rhythm__beam, .rhythm__flag, .rhythm__dot) { fill: var(--good); stroke: var(--good); }
+.rhythm__note.is-on .rhythm__head.is-hollow { fill: none; }
+.rhythm__note:is(.is-early, .is-late) :is(.rhythm__head, .rhythm__stem, .rhythm__dot) { fill: var(--warm); stroke: var(--warm); }
+.rhythm__note:is(.is-early, .is-late) .rhythm__head.is-hollow { fill: none; }
+.rhythm__note.is-missed :is(.rhythm__head, .rhythm__stem, .rhythm__dot) { fill: var(--bad); stroke: var(--bad); }
+.rhythm__note.is-missed .rhythm__head.is-hollow { fill: none; }
+.rhythm__note.is-missed { opacity: 0.75; }
+
+.drill__staff--rhythm { max-width: 100%; }
+
+.rhythm__countin {
+  /* Always occupies its line, so the notation does not jump when the count
+     appears and disappears. */
+  min-height: 1.2em; font-size: 30px; font-weight: 700; line-height: 1.2;
+  color: var(--accent); font-variant-numeric: tabular-nums;
+}
+
+.rhythm__pad {
+  font: inherit; width: 100%; max-width: 520px; min-height: 88px; cursor: pointer;
+  color: var(--text-muted); background: var(--bg-sunken);
+  border: 2px dashed var(--border-strong); border-radius: var(--radius);
+  transition: background 90ms ease, border-color 90ms ease, color 90ms ease, transform 90ms ease;
+  touch-action: manipulation; user-select: none;
+}
+.rhythm__pad:hover { border-color: var(--accent); color: var(--text); }
+.rhythm__pad.is-live { border-style: solid; border-color: var(--accent); color: var(--accent-text); }
+.rhythm__pad.is-hit { background: var(--accent-soft); border-color: var(--accent); transform: scale(0.99); }
+.rhythm__pad-label { font-size: 15px; font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rhythm__pad, .rhythm__playhead { transition: none; }
+}
+
 /* -- wide screens ---------------------------------------------------------- */
 
 @media (min-width: 1100px) {
@@ -765,11 +825,16 @@ table { border-collapse: collapse; }
   .answers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .stat { flex: 1 1 130px; }
   .hero__title { font-size: clamp(28px, 8vw, 40px); }
+  /* Four compact tiles on one row rather than two tall ones: on a phone the
+     scoreboard was pushing the exercise itself off the screen. */
+  .scoreboard { gap: 6px; }
+  .scoreboard__metric { flex: 1 1 0; min-width: 0; padding: 8px 6px; }
+  .scoreboard__value { font-size: 17px; }
+  .scoreboard__label { font-size: 10px; letter-spacing: 0.02em; }
 }
 
 @media (max-width: 420px) {
   .answers { grid-template-columns: minmax(0, 1fr); }
-  .scoreboard__metric { flex: 1 1 calc(50% - 5px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

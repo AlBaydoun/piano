@@ -357,5 +357,117 @@ export class Metronome {
   }
 }
 
+/**
+ * A click track for a fixed-length exercise.
+ *
+ * The shared Metronome runs forever and schedules a little ahead of itself,
+ * which is right for practising but wrong here: a rhythm drill needs to know
+ * exactly when beat one lands so it can judge a tap against it. An exercise is
+ * short, so every click is scheduled up front against the audio clock and the
+ * start time is handed back for the scorer to measure from.
+ */
+export class ClickTrack {
+  constructor(engine) {
+    this.engine = engine;
+    this.running = false;
+    /** Audio time of the first click of the exercise proper. */
+    this.startTime = 0;
+    /** Audio time the last click has sounded and the exercise is over. */
+    this.endTime = 0;
+    this.countInStart = 0;
+    this.secondsPerClick = 0.5;
+    this._sources = [];
+  }
+
+  /**
+   * @param {object} plan
+   * @param {number} plan.secondsPerClick
+   * @param {number} plan.countInClicks  a whole number of bars, please
+   * @param {number} plan.totalClicks    the length of the exercise itself
+   * @param {number} [plan.tailClicks]   extra clicks so the last note has a beat to land on
+   * @param {number} [plan.clicksPerBar]
+   * @param {number[]} [plan.accents]    click positions within the bar to accent
+   */
+  async start({ secondsPerClick, countInClicks, totalClicks, tailClicks = 1, clicksPerBar = 4, accents = [0] }) {
+    await this.engine.resume();
+    this.stop();
+    const ctx = this.engine.ctx;
+    // A beat of headroom so the first click is scheduled, not squeezed out.
+    const begin = ctx.currentTime + 0.2;
+
+    this.secondsPerClick = secondsPerClick;
+    this.countInStart = begin;
+    this.startTime = begin + countInClicks * secondsPerClick;
+    this.endTime = this.startTime + (totalClicks + tailClicks) * secondsPerClick;
+
+    const clicks = countInClicks + totalClicks + tailClicks;
+    for (let i = 0; i < clicks; i += 1) {
+      const position = i - countInClicks;
+      const inBar = ((position % clicksPerBar) + clicksPerBar) % clicksPerBar;
+      this._click(begin + i * secondsPerClick, {
+        accented: accents.includes(inBar),
+        countIn: position < 0,
+      });
+    }
+    this.running = true;
+    return this;
+  }
+
+  /** A short click for the player's own tap, so they hear themselves in time. */
+  tap(when = null) {
+    const ctx = this.engine.ctx;
+    if (ctx) this._woodblock(when ?? ctx.currentTime);
+  }
+
+  /** Play the written rhythm itself, so the player can hear what to aim at. */
+  playRhythm(onsets, { secondsPerClick, at = null } = {}) {
+    const ctx = this.engine.ctx;
+    if (!ctx) return;
+    const begin = at ?? ctx.currentTime + 0.1;
+    for (const onset of onsets) this._woodblock(begin + onset * secondsPerClick);
+  }
+
+  stop() {
+    for (const source of this._sources) {
+      try { source.stop(); } catch { /* already finished */ }
+    }
+    this._sources = [];
+    this.running = false;
+  }
+
+  _click(time, { accented, countIn }) {
+    const ctx = this.engine.ctx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    // The count-in is deliberately duller than the exercise, so the change of
+    // colour tells the player that beat one has arrived.
+    osc.frequency.value = countIn ? 720 : accented ? 1600 : 1050;
+    gain.gain.setValueAtTime(countIn ? 0.2 : accented ? 0.28 : 0.16, time);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.05);
+    osc.connect(gain);
+    gain.connect(this.engine.master ?? ctx.destination);
+    osc.start(time);
+    osc.stop(time + 0.06);
+    this._sources.push(osc);
+  }
+
+  _woodblock(time) {
+    const ctx = this.engine.ctx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(880, time);
+    osc.frequency.exponentialRampToValueAtTime(520, time + 0.04);
+    gain.gain.setValueAtTime(0.24, time);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.09);
+    osc.connect(gain);
+    gain.connect(this.engine.master ?? ctx.destination);
+    osc.start(time);
+    osc.stop(time + 0.1);
+    this._sources.push(osc);
+  }
+}
+
 export const engine = new PianoEngine();
 export const metronome = new Metronome(engine);
+export const clickTrack = new ClickTrack(engine);

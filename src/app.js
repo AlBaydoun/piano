@@ -7,7 +7,7 @@
  * return a cleanup function.
  */
 
-import { engine, metronome } from './audio.js';
+import { engine, metronome, clickTrack } from './audio.js';
 import { i18n, t, LOCALES } from './i18n.js';
 import { ComputerKeyboard, midiInput } from './input.js';
 import { PianoKeyboard, RANGES, autoRange } from './keyboard.js';
@@ -40,6 +40,7 @@ class App {
   constructor() {
     this.engine = engine;
     this.metronome = metronome;
+    this.clickTrack = clickTrack;
     this.progress = progress;
     this.settings = settings;
     this.i18n = i18n;
@@ -324,14 +325,16 @@ class App {
     this.sounding.add(midi);
     this.keyboard?.setActive(midi, true);
     this.practiceTimer.ping();
-    this._emit({ type: 'on', midi, velocity, source });
+    // Stamped from the audio clock rather than Date.now(): the rhythm drill
+    // compares taps against clicks that were scheduled on that same clock.
+    this._emit({ type: 'on', midi, velocity, source, time: engine.ctx?.currentTime ?? 0 });
   }
 
   noteOff(midi, { source = 'ui' } = {}) {
     engine.noteOff(midi, { source });
     this.sounding.delete(midi);
     this.keyboard?.setActive(midi, false);
-    this._emit({ type: 'off', midi, source });
+    this._emit({ type: 'off', midi, source, time: engine.ctx?.currentTime ?? 0 });
   }
 
   allNotesOff() {
@@ -472,6 +475,7 @@ class App {
       .add('/practice/ear', load(() => import('./views/eartrainer.js')))
       .add('/practice/chords', load(() => import('./views/chordtrainer.js')))
       .add('/practice/keys', load(() => import('./views/keytrainer.js')))
+      .add('/practice/rhythm', load(() => import('./views/rhythmtrainer.js')))
       .add('/reference', load(() => import('./views/reference.js')))
       .add('/freeplay', load(() => import('./views/freeplay.js')))
       .add('/progress', load(() => import('./views/progress.js')))

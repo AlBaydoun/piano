@@ -137,8 +137,8 @@ export default {
       },
       practice: {
         title: 'Practice drills',
-        blurb: 'Sight reading, ear training, chord recognition and key signatures — short, repeatable, scored.',
-        meta: 'Four drills',
+        blurb: 'Sight reading, ear training, chord building, key signatures and rhythm — short, repeatable, scored.',
+        meta: 'Five drills',
       },
       reference: {
         title: 'Reference',
@@ -282,6 +282,10 @@ export default {
         title: 'Key signatures',
         blurb: 'Name the key from its signature, or count the sharps and flats from the key. Pure recall, quickly learned.',
       },
+      rhythm: {
+        title: 'Rhythm',
+        blurb: 'The click counts you in, then you tap what is written. Any key counts — this drill listens for when you play, not what.',
+      },
     },
   },
 
@@ -387,6 +391,38 @@ export default {
     noAccidentals: 'no sharps or flats',
     sharps: { one: '{n} sharp', other: '{n} sharps' },
     flats: { one: '{n} flat', other: '{n} flats' },
+  },
+
+  rhythm: {
+    title: 'Rhythm',
+    lede: 'One bar of clicks counts you in, then you tap the rhythm on the page. What you play does not matter here — only when.',
+    hint: 'Tap the pad, any piano key, any key on your computer, or your MIDI keyboard. The tempo is the one in the header.',
+    level: 'Level',
+    meter: 'Time signature',
+    length: 'Length',
+    barCount: { one: '{n} bar', other: '{n} bars' },
+    start: 'Start',
+    stop: 'Stop',
+    hearIt: 'Hear it',
+    newRhythm: 'New rhythm',
+    tapHere: 'Tap here in time',
+    described: { one: 'A rhythm in {meter}, {n} note to play', other: 'A rhythm in {meter}, {n} notes to play' },
+    inTime: '{hits} of {total} in time',
+    missed: { one: '{n} missed', other: '{n} missed' },
+    extra: { one: '{n} tap too many', other: '{n} taps too many' },
+    runningLate: 'sitting {ms} ms behind the click',
+    runningEarly: 'rushing {ms} ms ahead of the click',
+    steady: 'steady to within {ms} ms',
+    streakToast: { one: '{n} clean run', other: '{n} clean runs in a row' },
+    levels: {
+      quarters: 'Quarter notes',
+      eighths: 'Eighth notes',
+      dotted: 'Dotted notes',
+      sixteenths: 'Sixteenth notes',
+      syncopation: 'Syncopation',
+      triplets: 'Triplets',
+      compound: 'Compound time',
+    },
   },
 
   reference: {

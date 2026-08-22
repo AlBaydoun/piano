@@ -40,7 +40,20 @@ const result = await build({
 });
 
 const script = result.outputFiles[0].text;
-const css = await readFile(resolve(root, 'styles/main.css'), 'utf8');
+const css = asciiCss(await readFile(resolve(root, 'styles/main.css'), 'utf8'));
+
+/**
+ * Make the stylesheet pure ASCII without asking whoever writes it to be.
+ * Comments are for maintainers and mean nothing to a browser, so they go; what
+ * is left is escaped the way CSS spells characters it cannot type. Six hex
+ * digits every time, so no trailing space is needed to end the escape.
+ */
+function asciiCss(text) {
+  return text
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[^\x00-\x7f]/gu, (char) => `\\${char.codePointAt(0).toString(16).padStart(6, '0')}`);
+}
 
 // The published page carries no <html>/<head>/<body> of its own: the host
 // supplies them. Everything below is what goes inside the body.
@@ -73,6 +86,8 @@ ${script}
 </script>
 `;
 
+// The stylesheet is handled above and esbuild escapes the script, but a regex
+// literal is one place a bundler leaves characters alone, so check the result.
 const nonAscii = page.match(/[^\x00-\x7f]/gu);
 if (nonAscii) {
   throw new Error(`${nonAscii.length} non-ASCII character(s) survived bundling: ${[...new Set(nonAscii)].join(' ')}`);

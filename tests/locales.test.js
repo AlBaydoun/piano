@@ -10,6 +10,8 @@ import assert from 'node:assert/strict';
 import { LOCALES, DEFAULT_LOCALE, i18n } from '../src/i18n.js';
 import { LESSONS, UNITS } from '../src/data/lessons.js';
 import { SONGS } from '../src/data/songs.js';
+import { DRILLS } from '../src/data/drills.js';
+import { LEVELS as RHYTHM_LEVELS } from '../src/data/rhythms.js';
 
 const CODES = Object.keys(LOCALES);
 const bundles = Object.fromEntries(
@@ -242,4 +244,17 @@ test('course text never hard-codes a pitch with an octave number', () => {
     }
   }
   assert.deepEqual(problems.slice(0, 5), [], `${problems.length} lines hard-code a pitch`);
+});
+
+test('every drill and every rhythm level is named in every language', () => {
+  for (const [code, bundle] of Object.entries(bundles)) {
+    for (const drill of DRILLS) {
+      const entry = bundle.practice?.drills?.[drill.id];
+      assert.ok(entry?.title, `${code} has no title for the ${drill.id} drill`);
+      assert.ok(entry?.blurb, `${code} has no blurb for the ${drill.id} drill`);
+    }
+    for (const level of RHYTHM_LEVELS) {
+      assert.ok(bundle.rhythm?.levels?.[level], `${code} has no name for the ${level} rhythm level`);
+    }
+  }
 });

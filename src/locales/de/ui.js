@@ -130,8 +130,8 @@ export default {
       },
       practice: {
         title: 'Übungen',
-        blurb: 'Blattlesen, Gehörbildung, Akkorde und Tonarten — kurz, wiederholbar, mit Auswertung.',
-        meta: 'Vier Übungen',
+        blurb: 'Blattlesen, Gehörbildung, Akkorde, Tonarten und Rhythmus — kurz, wiederholbar, mit Auswertung.',
+        meta: 'Fünf Übungen',
       },
       reference: {
         title: 'Nachschlagen',
@@ -275,6 +275,10 @@ export default {
         title: 'Vorzeichen',
         blurb: 'Bestimmen Sie die Tonart aus den Vorzeichen oder umgekehrt. Reines Auswendigwissen, schnell gelernt.',
       },
+      rhythm: {
+        title: 'Rhythmus',
+        blurb: 'Das Klicken zählt ein, dann klopfen Sie, was notiert ist. Jede Taste zählt — geprüft wird, wann Sie spielen, nicht was.',
+      },
     },
   },
 
@@ -380,6 +384,38 @@ export default {
     noAccidentals: 'keine Vorzeichen',
     sharps: { one: '{n} Kreuz', other: '{n} Kreuze' },
     flats: { one: '{n} B', other: '{n} Bes' },
+  },
+
+  rhythm: {
+    title: 'Rhythmus',
+    lede: 'Ein Takt Klicks zählt ein, dann klopfen Sie den notierten Rhythmus. Was Sie spielen, ist hier gleichgültig — nur das Wann zählt.',
+    hint: 'Klopfen Sie auf das Feld, auf eine beliebige Klaviertaste, eine beliebige Computertaste oder Ihr MIDI-Keyboard. Das Tempo ist das aus der Kopfzeile.',
+    level: 'Stufe',
+    meter: 'Taktart',
+    length: 'Länge',
+    barCount: { one: '{n} Takt', other: '{n} Takte' },
+    start: 'Start',
+    stop: 'Stopp',
+    hearIt: 'Anhören',
+    newRhythm: 'Neuer Rhythmus',
+    tapHere: 'Hier im Takt klopfen',
+    described: { one: 'Ein Rhythmus in {meter}, {n} Note zu spielen', other: 'Ein Rhythmus in {meter}, {n} Noten zu spielen' },
+    inTime: '{hits} von {total} im Takt',
+    missed: { one: '{n} ausgelassen', other: '{n} ausgelassen' },
+    extra: { one: '{n} Schlag zu viel', other: '{n} Schläge zu viel' },
+    runningLate: '{ms} ms hinter dem Klick',
+    runningEarly: '{ms} ms vor dem Klick',
+    steady: 'gleichmäßig, auf {ms} ms genau',
+    streakToast: { one: '{n} sauberer Durchgang', other: '{n} saubere Durchgänge in Folge' },
+    levels: {
+      quarters: 'Viertelnoten',
+      eighths: 'Achtelnoten',
+      dotted: 'Punktierte Noten',
+      sixteenths: 'Sechzehntelnoten',
+      syncopation: 'Synkopen',
+      triplets: 'Triolen',
+      compound: 'Zusammengesetzter Takt',
+    },
   },
 
   reference: {

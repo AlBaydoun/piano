@@ -18,7 +18,7 @@ const ROUTES = [
   '/lesson/e-pedal', '/lesson/x-blues', '/lesson/x-routine',
   '/song/twinkle', '/song/ode-to-joy', '/song/fur-elise', '/song/prelude-in-c', '/song/moonlight',
   '/song/hanon-1', '/song/twelve-bar-blues',
-  '/practice/notes', '/practice/ear', '/practice/chords', '/practice/keys',
+  '/practice/notes', '/practice/ear', '/practice/chords', '/practice/keys', '/practice/rhythm',
   '/nope-not-a-route',
 ];
 
