@@ -4,8 +4,9 @@ A free piano learning platform that runs entirely in the browser, in **English,
 Russian, German and Arabic**. No account, no server, no cost, and no build step
 — clone it, open `index.html` through any static server, and it works.
 
-<!-- Try it: enable GitHub Pages for this repository and the workflow in
-     .github/workflows/pages.yml publishes it automatically. -->
+**[Try it →](https://albaydoun.github.io/piano/)** — published from `main` by
+`.github/workflows/pages.yml`, which needs no build step because the repository
+is the artifact.
 
 ## What's in it
 

@@ -23,6 +23,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+        with:
+          # Turn Pages on for the repository if it is not on already, so the
+          # first deploy does not need anyone to visit the settings page.
+          enablement: true
       # The app is static ES modules with no build step, so the repository
       # is the artifact.
       - uses: actions/upload-pages-artifact@v3
