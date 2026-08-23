@@ -1,12 +1,15 @@
 # Open Piano
 
+[![Play Open Piano in your browser](docs/play-button.svg)](https://albaydoun.github.io/piano/)
+
+**<https://albaydoun.github.io/piano/>**
+
 A free piano learning platform that runs entirely in the browser, in **English,
 Russian, German and Arabic**. No account, no server, no cost, and no build step
 — clone it, open `index.html` through any static server, and it works.
 
-**[Try it →](https://albaydoun.github.io/piano/)** — published from `main` by
-`.github/workflows/pages.yml`, which needs no build step because the repository
-is the artifact.
+The live site is published from `main` by `.github/workflows/pages.yml`, which
+needs no build step because the repository is the artifact.
 
 ## What's in it
 
