@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Open Piano</title>
+<meta name="description" content="A free, open-source piano learning platform that runs entirely in your browser, in English, Russian, German and Arabic. Fifty-six lessons, a song library, sight reading and ear training, with MIDI keyboard support.">
+<meta name="theme-color" content="#0e1116">
+<meta name="color-scheme" content="dark light">
+
+<meta property="og:title" content="Open Piano — learn piano, free">
+<meta property="og:description" content="Lessons, a song library with falling notes, and drills for reading and ear training. No account, no cost, works offline.">
+<meta property="og:type" content="website">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e1116'/%3E%3Cg fill='%23f2f4f8'%3E%3Crect x='6' y='9' width='4.4' height='15' rx='1'/%3E%3Crect x='11.4' y='9' width='4.4' height='15' rx='1'/%3E%3Crect x='16.8' y='9' width='4.4' height='15' rx='1'/%3E%3Crect x='22.2' y='9' width='4.4' height='15' rx='1'/%3E%3C/g%3E%3Cg fill='%234f8ef7'%3E%3Crect x='9.2' y='9' width='3' height='9' rx='1'/%3E%3Crect x='14.6' y='9' width='3' height='9' rx='1'/%3E%3Crect x='20.6' y='9' width='3' height='9' rx='1'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="stylesheet" href="./styles/main.css">
+</head>
+<body>
+<a class="skip-link" href="#view">Skip to content</a>
+
+<div id="app">
+  <div class="boot">
+    <div class="boot__logo" aria-hidden="true">♪</div>
+    <p class="boot__text">Loading Open Piano…</p>
+  </div>
+</div>
+
+<noscript>
+  <div class="boot">
+    <p class="boot__text">
+      Open Piano needs JavaScript to synthesise sound and draw the keyboard. Please enable it and reload.
+    </p>
+  </div>
+</noscript>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
