@@ -48,6 +48,21 @@ and a twelve-bar blues. Three modes:
 You can slow any piece to 30% of its tempo, start from any bar, loop a section,
 and hand the left-hand part to the app while you work on the right.
 
+**A song workshop** for playing the music you actually listen to. Nearly every
+song you can hum is a short chord progression played with a particular groove,
+so the workshop holds both — eight progressions and nine accompaniment
+patterns — and lets you put any one under any other, in any key. Pick the four
+chords and a pop ballad, then switch the groove to Latin without touching the
+chords, and you hear why two songs built on the same harmony sound nothing
+alike. Each combination comes with what the left hand is doing, what the right
+hand is doing, and why, plus a method for working out a song by ear rather than
+hunting for someone else's transcription.
+
+There is no arrangement here of any particular chart hit, and that is
+deliberate: melodies and recordings still in copyright belong to somebody.
+Chord progressions and grooves do not — they are common musical currency, and
+they are the part you actually need under your hands.
+
 **Five practice drills**, each with running accuracy and a best streak:
 
 - **Sight reading** — a note appears, you play it. Treble, bass or grand staff,
@@ -173,7 +188,7 @@ src/
   storage.js          progress and settings in localStorage
   ui.js               small DOM helpers
   views/              one module per screen
-  data/               the course and the song library — structure only, no prose
+  data/               the course, the song library, the drills, the grooves
   locales/<lang>/     ui.js, lessons.js, songs.js — every word the reader sees
 tests/                node --test suites
 scripts/smoke.mjs     browser smoke test
@@ -202,6 +217,20 @@ being the same key.
 **The clefs are vector paths, not a font.** No webfont to download and nothing
 to fail to load. So are the rests and the noteheads in the rhythm drill: a
 missing glyph in a rhythm exercise is not a cosmetic problem.
+
+**Chords are stored as roman numerals, not as notes.** A progression in the
+workshop is `I V vi IV`, so it transposes to any key for free and the same
+eight progressions serve all twelve. Degrees are always counted against the
+*major* scale whatever the mode, which is the ordinary convention and is what
+makes a minor progression like `i bVI bIII bVII` come out right without a
+special case.
+
+**The workshop leads its voices.** Rather than slamming every chord into root
+position, it searches the inversions for the one that moves least from the
+chord before it, then places the right hand above wherever the left hand
+reaches. Shuffling between neighbouring shapes instead of leaping home is the
+single thing that most separates beginner chord playing from the real thing,
+and it is easier to copy than to describe.
 
 **Rhythm is counted in clicks, not in quarter notes.** A click is what the
 player hears and taps against, so that is the unit the rhythm drill measures

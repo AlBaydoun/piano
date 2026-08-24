@@ -12,7 +12,7 @@ import { chromium } from 'playwright';
 const BASE = process.env.SMOKE_URL ?? 'http://localhost:8099/index.html';
 
 const ROUTES = [
-  '/home', '/lessons', '/songs', '/practice', '/reference', '/freeplay', '/progress',
+  '/home', '/lessons', '/songs', '/workshop', '/practice', '/reference', '/freeplay', '/progress',
   '/lesson/f-instrument', '/lesson/f-white-keys', '/lesson/r-note-values', '/lesson/t-staff',
   '/lesson/b-grand-staff', '/lesson/s-minor', '/lesson/c-inversions', '/lesson/tech-arpeggios',
   '/lesson/e-pedal', '/lesson/x-blues', '/lesson/x-routine',

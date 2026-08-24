@@ -4,10 +4,11 @@ import { h, card, stat, templateNodes } from '../ui.js';
 import { t } from '../i18n.js';
 import { LESSONS, UNITS, lessonsInUnit } from '../data/lessons.js';
 import { SONGS } from '../data/songs.js';
+import { PROGRESSIONS, STYLES } from '../data/grooves.js';
 
-const FEATURES = ['lessons', 'songs', 'practice', 'reference', 'freeplay'];
+const FEATURES = ['lessons', 'songs', 'workshop', 'practice', 'reference', 'freeplay'];
 const FEATURE_PATHS = {
-  lessons: '/lessons', songs: '/songs', practice: '/practice',
+  lessons: '/lessons', songs: '/songs', workshop: '/workshop', practice: '/practice',
   reference: '/reference', freeplay: '/freeplay',
 };
 
@@ -20,6 +21,7 @@ export function render(app) {
   const featureMeta = {
     lessons: t('home.features.lessons.meta', { lessons: LESSONS.length, units: UNITS.length }),
     songs: t('home.features.songs.meta', { count: SONGS.length }),
+    workshop: t('home.features.workshop.meta', { progressions: PROGRESSIONS.length, styles: STYLES.length }),
     practice: t('home.features.practice.meta'),
     reference: t('home.features.reference.meta'),
     freeplay: t('home.features.freeplay.meta'),

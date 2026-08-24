@@ -18,6 +18,7 @@ export default {
     home: 'Home',
     lessons: 'Lessons',
     songs: 'Songs',
+    workshop: 'Workshop',
     practice: 'Practice',
     reference: 'Reference',
     progress: 'Progress',
@@ -134,6 +135,11 @@ export default {
         title: 'Songs',
         blurb: 'Falling notes that wait for you to find the right key, or play along at your own tempo. Plus technical studies for scales, arpeggios and blues.',
         meta: '{count} pieces, public domain',
+      },
+      workshop: {
+        title: 'Song workshop',
+        blurb: 'The chord progressions and grooves that popular music is built from, in any key, with what each hand is doing and why.',
+        meta: '{progressions} progressions, {styles} grooves',
       },
       practice: {
         title: 'Practice drills',
@@ -422,6 +428,122 @@ export default {
       syncopation: 'Syncopation',
       triplets: 'Triplets',
       compound: 'Compound time',
+    },
+  },
+
+  workshop: {
+    title: 'Song workshop',
+    lede: 'Nearly every song you can hum is a short chord progression played with a particular groove. Pick both, in any key, and hear why two songs built on the same four chords sound nothing alike.',
+    progression: 'Progression',
+    key: 'Key',
+    style: 'Groove',
+    hands: 'Hands',
+    handsBoth: 'Both',
+    handsLeft: 'Left only',
+    handsRight: 'Right only',
+    play: 'Play the loop',
+    stop: 'Stop',
+    playing: 'Looping — play along on the keyboard below.',
+    bassNote: 'bass {note}',
+    leftHand: 'Left hand',
+    rightHand: 'Right hand',
+    methodTitle: 'How to work out a song you love',
+    method: [
+      '**Find the key.** Hum the song and listen for the note it keeps coming home to — that is the tonic. Set the key above to match, and the chords on this page become the ones the song is most likely using.',
+      '**Find the chords.** Try the four chords first. A very large number of songs are one of the progressions here, sometimes entering the loop at a different point. Play along with the record; you will hear the moment it fits.',
+      '**Pick the groove.** The chords tell you which notes, the groove tells you the feel. Listen to the bass — square on the beat, or leaning late? — and choose the pattern that matches.',
+      '**Add the tune last.** With the accompaniment looping under your left hand, pick the melody out on top with your right. You already know how it goes. You are only finding where it lives on the keys.',
+      'This is how working musicians learn songs, and it is far quicker than hunting down someone else\'s transcription. There is no chart here for any particular hit because the melodies and recordings still in copyright are somebody\'s property — but chord progressions and grooves are common musical currency, and they are the part you actually need under your hands.',
+    ],
+    progressions: {
+      'four-chords': {
+        name: 'The four chords',
+        about: 'If you learn one progression, learn this one. It is behind a startling number of hits in every decade and every genre — pop, rock, country, reggaeton, K-pop. Play it once and you will start hearing it everywhere. Why it works: it leaves home, pushes away, lands somewhere sadder, then walks back.',
+      },
+      sensitive: {
+        name: 'The sensitive rotation',
+        about: 'The same four chords, started on the minor one. That single change turns triumphant into wistful, which is why it sits under so many ballads and choruses that want to ache a little. Same notes, different weather.',
+      },
+      'doo-wop': {
+        name: 'The fifties turnaround',
+        about: 'The sound of a slow dance in 1957, and still doing quiet service under modern ballads. Every chord slides to the next by a friendly interval, so nothing ever surprises you — and that predictability is exactly the charm.',
+      },
+      andalusian: {
+        name: 'The Andalusian cadence',
+        about: 'A line that steps downwards, in Spanish music for centuries and from there into flamenco, Latin pop, surf and metal. Three chords walk down, then the last one snaps back up and demands you go round again. The shortest route to making something sound Latin.',
+      },
+      'minor-axis': {
+        name: 'The minor loop',
+        about: 'Four minor-key chords that circle without ever properly resolving. That endlessness is why dance tracks and film scores love it: you can loop it for eight minutes and it never once asks to stop.',
+      },
+      'two-five-one': {
+        name: 'Two, five, one',
+        about: 'The sentence jazz is written in, and the engine under a great deal of soul and R&B. The second chord sets up the fifth, the fifth pulls hard to the first. Learn it in all twelve keys and you can sit in on almost any standard.',
+      },
+      canon: {
+        name: 'The Pachelbel line',
+        about: 'Three hundred years old and still being borrowed, usually without credit. The bass walks down one step at a time and that descending bass, not the chords on top, is what your ear is really following.',
+      },
+      'twelve-bar': {
+        name: 'Twelve-bar blues',
+        about: 'The form rock and roll was built on. Twelve bars, three chords, and a shape so well known that a room full of strangers can play it together after agreeing on nothing but the key.',
+      },
+    },
+    styles: {
+      blocks: {
+        name: 'Block chords',
+        about: 'Both hands land together on beat one and hold. The plainest thing you can do, and the right place to start: it puts the shapes under your fingers without asking your hands to think about rhythm at the same time.',
+        left: 'The root of the chord, held for the whole bar.',
+        right: 'The whole chord, held for the whole bar.',
+      },
+      ballad: {
+        name: 'Pop ballad',
+        about: 'The left hand keeps a slow half-bar pulse while the right taps the chord on every beat. Simple, and it sits under an enormous number of slow songs — you will recognise it the moment it starts.',
+        left: 'Root on beat one, the fifth on beat three.',
+        right: 'The chord on every beat, gently.',
+      },
+      arpeggio: {
+        name: 'Broken chord',
+        about: 'Rather than striking the chord all at once, the right hand rolls through its notes one at a time while the left holds the bass. It fills the space and adds motion without adding volume, which is why it lives under quiet verses.',
+        left: 'The root, held for the whole bar.',
+        right: 'Up through the chord and back down, in eighth notes.',
+      },
+      driving: {
+        name: 'Driving pop',
+        about: 'The left hand hammers the beat in octaves while the right answers off it. It pushes, which is why it turns up in choruses. Count "one and two and" out loud and put the right hand on every "and".',
+        left: 'Root and octave together, on every beat.',
+        right: 'The chord on every offbeat — each "and" between the beats.',
+      },
+      latin: {
+        name: 'Latin',
+        about: 'This is the groove that makes a track sound Latin. The bass leans onto the "and" of beat two instead of sitting square, and the right hand plays a montuno — the chord broken into a short syncopated figure, repeated. Take it slowly at first: the pattern matters far more than the speed.',
+        left: 'Root, then the fifth on the "and" of two. That late fifth is what makes it dance.',
+        right: 'A montuno: bottom, top, middle, top, over and over.',
+      },
+      afro68: {
+        name: 'Afropop 6/8',
+        about: 'Six eighth notes to the bar, felt in two groups of three. That lilt carries a great deal of West African music and the Afropop that came out of it. Count "one two three, four five six" with the weight on one and four — once you feel it in two rather than counting six, it plays itself.',
+        left: 'Root on one, the fifth on four.',
+        right: 'The chord on one and four, with a push just before each.',
+      },
+      anthem: {
+        name: 'Stadium anthem',
+        about: 'Big, four-square and loud: octaves in the left, full chords in the right, on every beat, with the top note flicked in just after. It is not subtle, and it is not trying to be — this is a chorus with the house lights up.',
+        left: 'Root octaves, twice a bar.',
+        right: 'The chord on every beat, the top note echoed straight after.',
+      },
+      shuffle: {
+        name: 'Shuffle',
+        about: 'The eighth notes are uneven — long, short, long, short — a triplet feel rather than a straight one. It is the whole difference between rock and roll and a march. Do not try to notate it; just lean on the first of each pair.',
+        left: 'Rocking between the root and the fifth, in swung eighths.',
+        right: 'The chord on each beat.',
+      },
+      waltz: {
+        name: 'Waltz',
+        about: 'Three beats to the bar: bass on one, chord on two and three. Oom-pah-pah. Older than everything else here, and still the clearest way to feel a bar that is not in four.',
+        left: 'The root on beat one.',
+        right: 'The chord on beats two and three.',
+      },
     },
   },
 

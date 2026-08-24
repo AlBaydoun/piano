@@ -30,9 +30,9 @@ export function noteSystemOptions() {
   return ['auto', 'letters', 'german', 'solfege'].map((value) => ({ value, label: t(`noteSystems.${value}`) }));
 }
 
-const NAV = ['home', 'lessons', 'songs', 'practice', 'reference', 'progress'];
+const NAV = ['home', 'lessons', 'songs', 'workshop', 'practice', 'reference', 'progress'];
 const NAV_PATHS = {
-  home: '/home', lessons: '/lessons', songs: '/songs',
+  home: '/home', lessons: '/lessons', songs: '/songs', workshop: '/workshop',
   practice: '/practice', reference: '/reference', progress: '/progress',
 };
 
@@ -476,6 +476,7 @@ class App {
       .add('/practice/chords', load(() => import('./views/chordtrainer.js')))
       .add('/practice/keys', load(() => import('./views/keytrainer.js')))
       .add('/practice/rhythm', load(() => import('./views/rhythmtrainer.js')))
+      .add('/workshop', load(() => import('./views/workshop.js')))
       .add('/reference', load(() => import('./views/reference.js')))
       .add('/freeplay', load(() => import('./views/freeplay.js')))
       .add('/progress', load(() => import('./views/progress.js')))

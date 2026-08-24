@@ -11,6 +11,7 @@ export default {
     home: 'Start',
     lessons: 'Lektionen',
     songs: 'Stücke',
+    workshop: 'Werkstatt',
     practice: 'Übungen',
     reference: 'Nachschlagen',
     progress: 'Fortschritt',
@@ -127,6 +128,11 @@ export default {
         title: 'Stücke',
         blurb: 'Fallende Noten, die warten, bis Sie die richtige Taste finden — oder Mitspielen im eigenen Tempo. Dazu Etüden für Tonleitern, Arpeggien und Blues.',
         meta: '{count} Stücke, gemeinfrei',
+      },
+      workshop: {
+        title: 'Songwerkstatt',
+        blurb: 'Die Akkordfolgen und Grooves, aus denen populäre Musik gebaut ist, in jeder Tonart — mit dem, was jede Hand dabei tut, und warum.',
+        meta: '{progressions} Folgen, {styles} Grooves',
       },
       practice: {
         title: 'Übungen',
@@ -415,6 +421,122 @@ export default {
       syncopation: 'Synkopen',
       triplets: 'Triolen',
       compound: 'Zusammengesetzter Takt',
+    },
+  },
+
+  workshop: {
+    title: 'Songwerkstatt',
+    lede: 'Fast jeder Song, den Sie summen können, ist eine kurze Akkordfolge, gespielt mit einem bestimmten Groove. Wählen Sie beides, in jeder Tonart, und hören Sie, warum zwei Songs auf denselben vier Akkorden völlig verschieden klingen.',
+    progression: 'Akkordfolge',
+    key: 'Tonart',
+    style: 'Groove',
+    hands: 'Hände',
+    handsBoth: 'Beide',
+    handsLeft: 'Nur links',
+    handsRight: 'Nur rechts',
+    play: 'Schleife spielen',
+    stop: 'Stopp',
+    playing: 'Läuft in der Schleife — spielen Sie auf der Klaviatur unten mit.',
+    bassNote: 'Bass {note}',
+    leftHand: 'Linke Hand',
+    rightHand: 'Rechte Hand',
+    methodTitle: 'So finden Sie einen Song selbst heraus',
+    method: [
+      '**Finden Sie die Tonart.** Summen Sie den Song und hören Sie auf den Ton, zu dem er immer wieder zurückkehrt — das ist die Tonika. Stellen Sie oben die passende Tonart ein, und die Akkorde auf dieser Seite sind die, die der Song mit großer Wahrscheinlichkeit verwendet.',
+      '**Finden Sie die Akkorde.** Probieren Sie zuerst die vier Akkorde. Sehr viele Songs sind eine der Folgen von dieser Seite, manchmal mit einem anderen Einstiegspunkt in die Schleife. Spielen Sie zur Aufnahme mit; Sie hören den Moment, in dem es passt.',
+      '**Wählen Sie den Groove.** Die Akkorde sagen, welche Töne, der Groove sagt, wie es sich anfühlt. Hören Sie auf den Bass — gerade auf der Zählzeit oder verspätet? — und nehmen Sie das passende Muster.',
+      '**Die Melodie zuletzt.** Während die Begleitung unter der linken Hand läuft, suchen Sie die Melodie oben mit der rechten. Wie sie geht, wissen Sie längst. Sie finden nur noch, wo sie auf den Tasten wohnt.',
+      'So lernen Berufsmusiker Songs, und es geht deutlich schneller, als fremde Transkriptionen zu suchen. Zu keinem bestimmten Hit steht hier ein Arrangement, weil urheberrechtlich geschützte Melodien und Aufnahmen jemandem gehören — Akkordfolgen und Grooves dagegen sind Allgemeingut, und genau die brauchen Sie in den Händen.',
+    ],
+    progressions: {
+      'four-chords': {
+        name: 'Die vier Akkorde',
+        about: 'Wenn Sie eine Akkordfolge lernen, dann diese. Hinter ihr steht eine erstaunliche Zahl von Hits aus jedem Jahrzehnt und jedem Genre — Pop, Rock, Country, Reggaeton, K-Pop. Einmal gespielt, hören Sie sie überall. Warum sie funktioniert: weg von zu Hause, ein Stoß nach außen, Landung auf etwas Traurigerem, dann zu Fuß zurück.',
+      },
+      sensitive: {
+        name: 'Die sensible Drehung',
+        about: 'Dieselben vier Akkorde, begonnen auf dem Mollakkord. Diese eine Verschiebung macht aus Triumph Wehmut — deshalb liegt sie unter so vielen Balladen und Refrains, die ein wenig schmerzen wollen. Gleiche Töne, anderes Wetter.',
+      },
+      'doo-wop': {
+        name: 'Die Fünfziger-Wendung',
+        about: 'Der Klang eines langsamen Tanzes von 1957, der bis heute leise unter modernen Balladen dient. Jeder Akkord gleitet in freundlichem Abstand zum nächsten, nichts überrascht — und genau in dieser Berechenbarkeit liegt der Reiz.',
+      },
+      andalusian: {
+        name: 'Andalusische Kadenz',
+        about: 'Eine abwärts schreitende Linie, seit Jahrhunderten in der spanischen Musik und von dort in Flamenco, Latin-Pop, Surf und Metal. Drei Akkorde gehen hinunter, der letzte schnellt zurück nach oben und verlangt eine weitere Runde. Der kürzeste Weg zu einem lateinamerikanischen Klang.',
+      },
+      'minor-axis': {
+        name: 'Die Moll-Schleife',
+        about: 'Vier Mollakkorde, die kreisen, ohne sich je richtig aufzulösen. Diese Endlosigkeit lieben Dancetracks und Filmmusik: Man kann sie acht Minuten laufen lassen, und sie bittet kein einziges Mal ums Aufhören.',
+      },
+      'two-five-one': {
+        name: 'Zwei, fünf, eins',
+        about: 'Der Satz, in dem Jazz geschrieben ist, und der Motor unter einem Großteil von Soul und R&B. Der zweite Akkord bereitet den fünften vor, der fünfte zieht mit Macht zum ersten. In allen zwölf Tonarten gelernt, können Sie bei fast jedem Standard mitspielen.',
+      },
+      canon: {
+        name: 'Die Pachelbel-Linie',
+        about: 'Dreihundert Jahre alt und noch immer entliehen, meist ohne Nennung. Der Bass geht Schritt für Schritt abwärts, und diesem absteigenden Bass folgt Ihr Ohr in Wahrheit, nicht den Akkorden darüber.',
+      },
+      'twelve-bar': {
+        name: 'Zwölftaktiger Blues',
+        about: 'Die Form, auf der Rock ’n’ Roll gebaut ist. Zwölf Takte, drei Akkorde und ein so bekannter Verlauf, dass ein Raum voller Fremder ihn gemeinsam spielt, nachdem man sich nur über die Tonart geeinigt hat.',
+      },
+    },
+    styles: {
+      blocks: {
+        name: 'Blockakkorde',
+        about: 'Beide Hände greifen gemeinsam auf Zählzeit eins und halten. Das Schlichteste, was es gibt, und der richtige Anfang: Die Griffe kommen in die Finger, ohne dass die Hände gleichzeitig über Rhythmus nachdenken müssen.',
+        left: 'Der Grundton des Akkords, den ganzen Takt gehalten.',
+        right: 'Der ganze Akkord, den ganzen Takt gehalten.',
+      },
+      ballad: {
+        name: 'Popballade',
+        about: 'Die linke Hand hält einen langsamen Halbtaktpuls, die rechte tippt den Akkord auf jede Zählzeit. Einfach — und unter einer enormen Zahl langsamer Songs zu finden: Sie erkennen es sofort.',
+        left: 'Grundton auf eins, Quinte auf drei.',
+        right: 'Der Akkord auf jede Zählzeit, sanft.',
+      },
+      arpeggio: {
+        name: 'Gebrochener Akkord',
+        about: 'Statt den Akkord auf einmal anzuschlagen, rollt die rechte Hand seine Töne einzeln ab, während die linke den Bass hält. Das füllt den Raum und bringt Bewegung, ohne lauter zu werden — deshalb lebt es unter leisen Strophen.',
+        left: 'Der Grundton, den ganzen Takt gehalten.',
+        right: 'Den Akkord hinauf und wieder hinunter, in Achteln.',
+      },
+      driving: {
+        name: 'Treibender Pop',
+        about: 'Die linke Hand hämmert die Zählzeit in Oktaven, die rechte antwortet dazwischen. Das drängt nach vorn, deshalb steht es in Refrains. Zählen Sie laut „eins und zwei und“ und setzen Sie die rechte Hand auf jedes „und“.',
+        left: 'Grundton mit Oktave, auf jede Zählzeit.',
+        right: 'Der Akkord auf jede Nebenzeit — auf jedes „und“ zwischen den Zählzeiten.',
+      },
+      latin: {
+        name: 'Latin',
+        about: 'Dieser Groove macht einen Track lateinamerikanisch. Der Bass lehnt sich auf das „und“ von zwei, statt gerade zu stehen, und die rechte Hand spielt ein Montuno — den Akkord, zerlegt in eine kurze synkopierte Figur, die sich wiederholt. Erst langsam: Das Muster zählt weit mehr als das Tempo.',
+        left: 'Grundton, dann die Quinte auf dem „und“ von zwei. Diese verspätete Quinte bringt das Tanzen hinein.',
+        right: 'Ein Montuno: unten, oben, Mitte, oben — immer wieder.',
+      },
+      afro68: {
+        name: 'Afropop 6/8',
+        about: 'Sechs Achtel im Takt, empfunden als zwei Gruppen zu dritt. Dieses Wiegen trägt einen großen Teil westafrikanischer Musik und den daraus entstandenen Afropop. Zählen Sie „eins zwei drei, vier fünf sechs“ mit Gewicht auf eins und vier — sobald Sie es in zwei spüren statt bis sechs zu zählen, spielt es sich von selbst.',
+        left: 'Grundton auf eins, Quinte auf vier.',
+        right: 'Der Akkord auf eins und vier, mit einem Schub direkt davor.',
+      },
+      anthem: {
+        name: 'Stadionhymne',
+        about: 'Groß, vierschrötig und laut: Oktaven links, volle Akkorde rechts, auf jede Zählzeit, mit dem Spitzenton direkt hinterhergeworfen. Das ist nicht subtil und will es auch nicht sein — ein Refrain bei vollem Saallicht.',
+        left: 'Grundton-Oktaven, zweimal pro Takt.',
+        right: 'Der Akkord auf jede Zählzeit, der Spitzenton unmittelbar als Echo.',
+      },
+      shuffle: {
+        name: 'Shuffle',
+        about: 'Die Achtel sind ungleich — lang, kurz, lang, kurz: ein Triolengefühl statt eines geraden. Darin liegt der ganze Unterschied zwischen Rock ’n’ Roll und einem Marsch. Versuchen Sie nicht, es aufzuschreiben; lehnen Sie sich einfach auf die erste jedes Paares.',
+        left: 'Wiegen zwischen Grundton und Quinte, in geswingten Achteln.',
+        right: 'Der Akkord auf jede Zählzeit.',
+      },
+      waltz: {
+        name: 'Walzer',
+        about: 'Drei Zählzeiten im Takt: Bass auf eins, Akkord auf zwei und drei. Hum-ta-ta. Älter als alles andere hier — und noch immer der klarste Weg, einen Takt zu spüren, der nicht auf vier steht.',
+        left: 'Der Grundton auf Zählzeit eins.',
+        right: 'Der Akkord auf zwei und drei.',
+      },
     },
   },
 
