@@ -10,7 +10,7 @@
 import { h, select, segmented, richText } from '../ui.js';
 import { i18n, t } from '../i18n.js';
 import { PROGRESSIONS, STYLES, getProgression, getStyle, renderGroove } from '../data/grooves.js';
-import { KEY_SIGNATURES, nameToMidi } from '../theory.js';
+import { KEY_SIGNATURES, keySignatureFor, nameToMidi } from '../theory.js';
 
 const KEYS = Object.keys(KEY_SIGNATURES);
 
@@ -81,17 +81,31 @@ export function render(app) {
     const progression = getProgression(progressionId);
     const style = getStyle(styleId);
     groove = renderGroove({ progression, tonic: nameToMidi(`${keyName}4`), style, hands });
-    drawChart();
+    drawChart(progression);
     drawRecipe(progression, style);
     app.keyboard.ensureVisible(groove.notes.map((note) => note.midi));
   }
 
-  function drawChart() {
-    chart.replaceChildren(...groove.chords.map((chord) => h('div.chart__cell', { dataset: { index: String(chord.index) } },
-      h('span.chart__roman', null, chord.label),
-      h('span.chart__symbol', null, i18n.chordSymbol(chord.root, chord.type)),
-      h('span.chart__notes', null, chord.voicing.map((midi) => app.noteName(midi)).join(' ')),
-      h('span.chart__bass', null, t('workshop.bassNote', { note: app.noteName(chord.bass, { octave: true }) })))));
+  /**
+   * Which way to spell the black keys. Flat-side keys are written with flats,
+   * and a numeral carrying its own flat — the borrowed chords that give minor
+   * progressions their colour — is always written that way whatever the key.
+   */
+  function spelling(chord, progression) {
+    return { flats: chord.offset < 0 || keySignatureFor(keyName, progression.mode) < 0 };
+  }
+
+  function drawChart(progression) {
+    chart.replaceChildren(...groove.chords.map((chord) => {
+      const how = spelling(chord, progression);
+      return h('div.chart__cell', { dataset: { index: String(chord.index) } },
+        h('span.chart__roman', null, chord.label),
+        h('span.chart__symbol', null, i18n.chordSymbol(chord.root, chord.type, how)),
+        h('span.chart__notes', null, chord.voicing.map((midi) => app.noteName(midi, how)).join(' ')),
+        h('span.chart__bass', null, t('workshop.bassNote', {
+          note: app.noteName(chord.bass, { ...how, octave: true }),
+        })));
+    }));
   }
 
   function drawRecipe(progression, style) {
